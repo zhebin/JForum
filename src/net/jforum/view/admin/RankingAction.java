@@ -43,11 +43,25 @@
 package net.jforum.view.admin;
 
 
+import net.jforum.JForumExecutionContext;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.RankingDAO;
 import net.jforum.entities.Ranking;
+import net.jforum.entities.User;
 import net.jforum.repository.RankingRepository;
+import net.jforum.util.I18n;
+import net.jforum.util.MD5;
+import net.jforum.util.image.ImageUtils;
+import net.jforum.util.legacy.commons.fileupload.FileItem;
+import net.jforum.util.preferences.ConfigKeys;
+import net.jforum.util.preferences.SystemGlobals;
 import net.jforum.util.preferences.TemplateKeys;
+import net.jforum.view.forum.common.UploadUtils;
+import net.jforum.view.forum.common.UserCommon;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.UUID;
 
 /**
  * @author Rafael Steil
@@ -81,9 +95,8 @@ public class RankingAction extends AdminCommand
 	//  Save information
 	public void editSave()
 	{
-		Ranking r = new Ranking();
+        Ranking r = DataAccessDriver.getInstance().newRankingDAO().selectById(this.request.getIntParameter("rank_id"));
 		r.setTitle(this.request.getParameter("rank_title"));
-		r.setId(this.request.getIntParameter("rank_id"));
 		
 		boolean special = "1".equals(this.request.getParameter("rank_special"));
 		r.setSpecial(special);
@@ -91,6 +104,8 @@ public class RankingAction extends AdminCommand
 		if (!special) {
 			r.setMin(this.request.getIntParameter("rank_min"));
 		}
+
+        handleImage(r);
 		
 		DataAccessDriver.getInstance().newRankingDAO().update(r);
 		RankingRepository.loadRanks();	
@@ -125,6 +140,8 @@ public class RankingAction extends AdminCommand
 		if (!special) {
 			r.setMin(this.request.getIntParameter("rank_min"));			
 		}
+
+		handleImage(r);
 		
 		DataAccessDriver.getInstance().newRankingDAO().addNew(r);
 		
@@ -132,4 +149,69 @@ public class RankingAction extends AdminCommand
 		
 		this.list();
 	}
+
+	private void handleImage(Ranking r){
+        if (request.getObjectParameter("image") != null) {
+            try {
+                handleAvatar(r);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**r
+     * @param r
+     */
+    private static void handleAvatar(Ranking r)
+    {
+        String fileName = UUID.randomUUID().toString();
+        FileItem item = (FileItem) JForumExecutionContext.getRequest().getObjectParameter("image");
+        UploadUtils uploadUtils = new UploadUtils(item);
+
+        // Gets file extension
+        String extension = uploadUtils.getExtension().toLowerCase();
+        int type = ImageUtils.IMAGE_UNKNOWN;
+
+        if (extension.equals("jpg") || extension.equals("jpeg")) {
+            type = ImageUtils.IMAGE_JPEG;
+        }
+        else if (extension.equals("gif") || extension.equals("png")) {
+            type = ImageUtils.IMAGE_PNG;
+        }
+
+        if (type != ImageUtils.IMAGE_UNKNOWN) {
+            String avatarTmpFileName = SystemGlobals.getApplicationPath()
+                    + "/images/rank/"
+                    + fileName
+                    + "_tmp."
+                    + extension;
+
+            // We cannot handle gifs
+            if (extension.toLowerCase().equals("gif")) {
+                extension = "png";
+            }
+
+            String avatarFinalFileName = SystemGlobals.getApplicationPath()
+                    + "/images/rank/"
+                    + fileName
+                    + "."
+                    + extension;
+
+            uploadUtils.saveUploadedFile(avatarTmpFileName);
+
+            // OK, time to check and process the avatar size
+            int maxWidth = SystemGlobals.getIntValue(ConfigKeys.AVATAR_MAX_WIDTH);
+            int maxHeight = SystemGlobals.getIntValue(ConfigKeys.AVATAR_MAX_HEIGHT);
+
+            BufferedImage image = ImageUtils.resizeImage(avatarTmpFileName, type, maxWidth, maxHeight);
+            ImageUtils.saveImage(image, avatarFinalFileName, type);
+
+            r.setImage(fileName + "." + extension);
+
+            // Delete the temporary file
+            new File(avatarTmpFileName).delete();
+        }
+    }
 }

@@ -50,11 +50,8 @@ import net.jforum.SessionFacade;
 import net.jforum.dao.DataAccessDriver;
 import net.jforum.dao.PrivateMessageDAO;
 import net.jforum.dao.UserDAO;
-import net.jforum.entities.Post;
-import net.jforum.entities.PrivateMessage;
-import net.jforum.entities.PrivateMessageType;
-import net.jforum.entities.User;
-import net.jforum.entities.UserSession;
+import net.jforum.entities.*;
+import net.jforum.repository.RankingRepository;
 import net.jforum.repository.SmiliesRepository;
 import net.jforum.util.I18n;
 import net.jforum.util.concurrent.Executor;
@@ -97,10 +94,24 @@ public class PrivateMessageAction extends Command {
 
 	private void getContact() {
 		// 获取公共通讯录和个人通讯录
-		List allUser = DataAccessDriver.getInstance().newUserDAO().selectAll();
+		List<User> allUser = DataAccessDriver.getInstance().newUserDAO().selectAllForContact();
+		for(User u:allUser){
+		    int score = u.getRankId();
+		    u.setYim(RankingRepository.getRankTitle(score).getImage());//临时占用这个变量
+        }
 		this.context.put("allUser", allUser);
-		List groupList = DataAccessDriver.getInstance().newUserOwnGroupDAO()
+		List<UserOwnGroup> groupList = DataAccessDriver.getInstance().newUserOwnGroupDAO()
 				.selectAllByUserId(SessionFacade.getUserSession().getUserId());
+		for(UserOwnGroup g:groupList){
+		    for(User u:g.getList()){
+		        for(User t:allUser){
+		            if(u.getId()==t.getId()){
+		                u.setYim(t.getYim());
+		                break;
+                    }
+                }
+            }
+        }
 		this.context.put("groupList", groupList);
 	}
 

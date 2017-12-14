@@ -42,33 +42,7 @@
  */
 package net.jforum.dao.generic;
 
-import net.jforum.dao.ApiDAO;
-import net.jforum.dao.AttachmentDAO;
-import net.jforum.dao.BanlistDAO;
-import net.jforum.dao.BannerDAO;
-import net.jforum.dao.BookmarkDAO;
-import net.jforum.dao.CategoryDAO;
-import net.jforum.dao.ConfigDAO;
-import net.jforum.dao.DataAccessDriver;
-import net.jforum.dao.ForumDAO;
-import net.jforum.dao.GroupDAO;
-import net.jforum.dao.GroupSecurityDAO;
-import net.jforum.dao.KarmaDAO;
-import net.jforum.dao.LuceneDAO;
-import net.jforum.dao.MailIntegrationDAO;
-import net.jforum.dao.ModerationDAO;
-import net.jforum.dao.ModerationLogDAO;
-import net.jforum.dao.PollDAO;
-import net.jforum.dao.PostDAO;
-import net.jforum.dao.PrivateMessageDAO;
-import net.jforum.dao.RankingDAO;
-import net.jforum.dao.SmilieDAO;
-import net.jforum.dao.SummaryDAO;
-import net.jforum.dao.TopicDAO;
-import net.jforum.dao.TreeGroupDAO;
-import net.jforum.dao.UserDAO;
-import net.jforum.dao.UserOwnGroupDAO;
-import net.jforum.dao.UserSessionDAO;
+import net.jforum.dao.*;
 import net.jforum.dao.generic.security.GenericGroupSecurityDAO;
 
 /**
@@ -103,6 +77,7 @@ public class GenericDataAccessDriver extends DataAccessDriver
     private static ModerationLogDAO moderationLogDao = new GenericModerationLogDAO();
     private static LuceneDAO luceneDao = new GenericLuceneDAO();
     private static UserOwnGroupDAO userOwnGroupDAO = new GenericUserOwnGroupDAO();
+    private static RankRecordDAO rankRecordDAO = new GenericRankRecordDAO();
     
 	/**
 	 * @see net.jforum.dao.DataAccessDriver#getForumModel()
@@ -308,4 +283,9 @@ public class GenericDataAccessDriver extends DataAccessDriver
 	public UserOwnGroupDAO newUserOwnGroupDAO() {
 		return userOwnGroupDAO;
 	}
+
+    @Override
+    public RankRecordDAO newRankRecordDAO() {
+        return rankRecordDAO;
+    }
 }

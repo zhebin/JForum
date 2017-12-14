@@ -64,7 +64,12 @@
 			
 			<tr>
 				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("PostShow.ranking")}:&nbsp;</span></td>
-				<td>${rank.getRankTitle(u.rankId, u.totalPosts)?default("")}</td>
+				<!--<td>${rank.getRankTitle(u.rankId, u.totalPosts)?default("")}</td>-->
+                <#assign img="">
+                <#if u.yim??>
+                    <#assign img="<img src='${contextPath}/images/rank/${u.yim}' height='18px' style='vertical-align: top;'/>">
+                </#if>
+                    <td><span>${rank.getRankTitleByUserId(u.id)?default("")}</span>${img}</td>
 			</tr>
 			<!-- 评分 
 			<#if karmaEnabled>

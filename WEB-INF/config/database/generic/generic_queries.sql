@@ -31,6 +31,14 @@ RankingModel.delete = DELETE FROM jforum_ranks WHERE rank_id = ?
 RankingModel.update = UPDATE jforum_ranks SET rank_title = ?, rank_image = ?, rank_special = ?, rank_min = ? WHERE rank_id = ?
 RankingModel.addNew = INSERT INTO jforum_ranks ( rank_title, rank_min, rank_special) VALUES ( ?, ?, ? )
 
+# #############
+# RankingRecordModel
+# #############
+RankingRecordModel.selectTotalScore = SELECT SUM(SCORE) FROM jforum_rank_record where user_id=?
+RankingRecordModel.selectTodayScore = SELECT SUM(SCORE) FROM jforum_rank_record where user_id=? and  trunc(record_time)=trunc(sysdate)
+RankingRecordModel.add =  INSERT INTO jforum_rank_record (record_id,user_id, type, score, pk_id, record_time) VALUES (JFORUM_RANK_RECORD_SEQ.nextval, ?, ?, ?, ?, ? )
+RankingRecordModel.lastGeneratedId = SELECT JFORUM_RANK_RECORD_SEQ.Currval from dual
+
 
 # #############
 # UserOwnGroup
@@ -73,6 +81,8 @@ UserModel.selectById = SELECT COUNT(pm.privmsgs_to_userid) AS private_messages, 
 
 UserModel.selectAll = SELECT user_email, user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, \
 	user_website, user_viewemail,user_msnm FROM jforum_users ORDER BY user_id
+
+UserModel.selectAllForContact = SELECT u.user_id,u.user_msnm,sum(r.score) as total FROM jforum_users u left join jforum_rank_record r on u.user_id=r.user_id group by u.user_id,u.user_msnm order by u.user_msnm
 
 UserModel.selectAllByLimit = SELECT user_email, user_id, user_posts, user_regdate, username, deleted, user_karma, user_from, user_website, user_viewemaill,user_msnm \
 	FROM jforum_users ORDER BY username LIMIT ?, ?

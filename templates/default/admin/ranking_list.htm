@@ -12,8 +12,8 @@
 	</tr>
 	<tr>
 		<td class="row2"><span class="gen"><b>${I18n.getMessage("Rank.List.rankName")}</b></span></td>
-		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.List.minPosts")}</b></span></td>
-		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.Form.Special")}</b></span></td>
+		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.List.minScore")}</b></span></td>
+		<!--<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.Form.Special")}</b></span></td>-->
 		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Action")}</b></span></td>
 		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Delete")}</b></span></td>
 	</tr>
@@ -22,7 +22,7 @@
 	<tr>
 		<td class="row1" width="30%"><span class=gen>${rank.title}</span></td>
 		<td width="20%" class="row1" align="center"><span class="gen">${rank.min}</span></td>
-		<td width="20%" class="row1" align="center"><span class="gen">${rank.special?string}</span></td>
+		<!--<td width="20%" class="row1" align="center"><span class="gen">${rank.special?string}</span></td>-->
 		<td width="20%" class="row1" align="center"><span class="gen"><a href="${JForumContext.encodeURL("/${moduleName}/edit/${rank.id}")}">${I18n.getMessage("Rank.List.Edit")}</a></span></td>
 		<td width="10%" class="row1" align="center"><input type="checkbox" name="rank_id" value="${rank.id}" /></td>
 	</tr>

@@ -19,7 +19,7 @@ function turnSpecial() {
 <style type="text/css">
 	h1 { font:12px/1.6em Helvetica, Arial, sans-serif; font-weight:bold; }
 </style>
-<form accept-charset="${encoding}" name="form" action="${JForumContext.encodeURL("/jforum")}" method="post">
+<form accept-charset="${encoding}" name="form" enctype="multipart/form-data" action="${JForumContext.encodeURL("/jforum")}" method="post">
 <input type="hidden" name="action" value="${action}" />
 <input type="hidden" name="module" value="${moduleName}" />
 
@@ -39,15 +39,38 @@ function turnSpecial() {
 			<td class="row2"><input name="rank_title" type="text" id="rank_title" value="<#if rank?exists>${rank.title}</#if>" /></td>
 		</tr>
 
-		<tr>
+		<tr style="display: none">
 			<td class="row1" width="38%"><span class="gen">${I18n.getMessage("Rank.Form.Special")}</span></td>
 			<td class="row2"><input name="rank_special" value="1" type="checkbox" onClick="turnSpecial();" id="rank_special"<#if rank?exists && rank.special>checked</#if> /></td>
 		</tr>
 
 		<tr>
-			<td class="row1" width="38%"><span class="gen">${I18n.getMessage("Rank.Form.MinValue")}</span></td>
-			<td class="row2"><input name="rank_min" type="text" id="rank_min" value="<#if rank?exists>${rank.min}</#if>" size="6" maxlength="5" /></td>
+			<td class="row1" width="38%"><span class="gen">${I18n.getMessage("Rank.Form.minScore")}</span></td>
+			<td class="row2"><input name="rank_min" type="text" id="rank_min" value="<#if rank?exists>${rank.min}</#if>" size="16" maxlength="15" /></td>
 		</tr>
+
+        <tr>
+            <td class="row1" align="right">
+                <span class="gen">${I18n.getMessage("Rank.Form.currImg")}:</span><br />
+            </td>
+            <td class="row2">
+                <#if (rank.image?exists && rank.image?length > 0)>
+                    <img src="${contextPath}/images/rank/${rank.image}" /><br />
+                </#if>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="row1" align="right">
+                <br />
+                <span class="gen">${I18n.getMessage("Rank.Form.selectFrom")}:</span><br />
+                <br />
+            </td>
+            <td class="row2">
+                <!--<span class="gensmall">${I18n.getMessage("User.avatarDesc")}</span><br />-->
+                <input style="WIDTH: 200px;" type="file" name="image"/>
+            </td>
+        </tr>
 
 		<tr align="center">
 			<td class="catbottom" colspan="2" height="28"><input class="submit" type="submit" value="${I18n.getMessage("Rank.Form.ClickToUpdate")}" name="submit" /></td>

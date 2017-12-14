@@ -583,6 +583,7 @@ public class UserAction extends Command
 		UserDAO udao = da.newUserDAO();
 
 		User u = udao.selectById(this.request.getIntParameter("user_id"));
+		u.setYim(RankingRepository.getRankImageByUserId(u.getId()));
 		
 		if (u.getId() == 0) {
 			this.userNotFound();
@@ -763,6 +764,7 @@ public class UserAction extends Command
 		int usersPerPage = SystemGlobals.getIntValue(ConfigKeys.USERS_PER_PAGE);
 							
 		List users = DataAccessDriver.getInstance().newUserDAO().selectAll(start ,usersPerPage);
+
 		this.context.put("users", users);
 		this.context.put("pageTitle", I18n.getMessage("ForumBase.usersList"));
 		this.setTemplateName(TemplateKeys.USER_LIST);

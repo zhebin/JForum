@@ -251,4 +251,6 @@ public abstract class DataAccessDriver
 	public abstract LuceneDAO newLuceneDAO();
 	
 	public abstract UserOwnGroupDAO newUserOwnGroupDAO();
+
+	public abstract RankRecordDAO newRankRecordDAO();
 }

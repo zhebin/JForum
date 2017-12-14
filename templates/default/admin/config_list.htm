@@ -184,6 +184,27 @@
 				</span>
 			</td>
 		</tr>
+
+        <!-- Rank Settings -->
+        <tr>
+            <td class="catsides" colspan="2"><span class="gen"><b>${I18n.getMessage("Config.Form.rankSetting")}</b></span></td>
+        </tr>
+        <tr>
+            <td class="row2" width="10%"><span class="gen">${I18n.getMessage("Config.Form.rankPostScore")}</span></td>
+            <td class="row2" width="38%"><span class="gen"><input type="text" size="10" name="p_rank.post.score" value="${config.getProperty("rank.post.score")}" /></span></td>
+        </tr>
+        <tr>
+            <td class="row2" width="10%"><span class="gen">${I18n.getMessage("Config.Form.rankCommentScore")}</span></td>
+            <td class="row2" width="38%"><span class="gen"><input type="text" size="10" name="p_rank.comment.score" value="${config.getProperty("rank.comment.score")}" /></span></td>
+        </tr>
+        <tr>
+            <td class="row2" width="10%"><span class="gen">${I18n.getMessage("Config.Form.onlineScore")}</span></td>
+            <td class="row2" width="38%"><span class="gen"><input type="text" size="10" name="p_rank.online.score" value="${config.getProperty("rank.online.score")}" /></span></td>
+        </tr>
+        <tr>
+            <td class="row2" width="10%"><span class="gen">${I18n.getMessage("Config.Form.totalMax")}</span></td>
+            <td class="row2" width="38%"><span class="gen"><input type="text" size="10" name="p_rank.total.max" value="${config.getProperty("rank.total.max")}" /></span></td>
+        </tr>
 		
 		<!-- Cache Settings -->
 		<tr>

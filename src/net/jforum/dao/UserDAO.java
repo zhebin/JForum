@@ -83,6 +83,8 @@ public interface UserDAO
 	 * @return <code>ArrayList</code> with the users. Each entry is an <code>User</code> object
 	 */
 	public List selectAll() ;
+
+	public List selectAllForContact();
 	
 	/**
 	 * Gets all users with your Karma.

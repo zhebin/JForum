@@ -31,12 +31,22 @@
 <#if post.userId != 1>
 	<dl class="profile">
 		<dt>${I18n.getMessage("Rank.List.rankName")}:</dt>
-		<dd><#if rank.getRankTitle(user.rankId, user.totalPosts).length() == 0>
+		<!--<dd><#if rank.getRankTitle(user.rankId, user.totalPosts).length() == 0>
 				&nbsp;
 			<#else>
 				${rank.getRankTitle(user.rankId, user.totalPosts)}
 			</#if>
-		</dd>
+		</dd>-->
+        <dd><#if rank.getRankTitleByUserId(user.id).length() == 0>
+            &nbsp;
+            <#else>
+                <#assign img="">
+                    <#if user.yim??>
+                        <#assign img="<img src='${contextPath}/images/rank/${user.yim}' height='18px' style='vertical-align: top;'/>">
+                    </#if>
+                <span>${rank.getRankTitleByUserId(user.id)!""}</span>${img}
+        </#if>
+        </dd>
 	</dl>
 </#if>
 <#if post.userId != 1>

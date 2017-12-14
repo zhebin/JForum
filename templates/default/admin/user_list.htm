@@ -5,12 +5,12 @@
 <style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
 <table class="mainbox" cellspacing="1" cellpadding="3" width="100%" border="0">
 	<tr>
-		<td colspan="6" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;" align="center">
+		<td colspan="7" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;" align="center">
 			<h1>${I18n.getMessage("User.adminTitle")}</h1>
 		</td>
 	</tr>
 	<tr>
-		<td class="gen" align="center" colspan="6">
+		<td class="gen" align="center" colspan="7">
 			<form id="formusersearch" action="${JForumContext.encodeURL("/jforum")}" accept-charset="${encoding}" method="post">
 			${I18n.getMessage("User.searchByUsername")}: 
 			<input type="hidden" name="action" value="search" />
@@ -33,6 +33,7 @@
 		<tr>
 			<td class="row2" width="10%" align="center" bgcolor="#dFdFdF"><span class="gen"><b>${I18n.getMessage("User.id")}</b></span></td>
 			<td class="row2" bgcolor="#dFdFdF"><span class="gen"><b>${I18n.getMessage("User.username")}</b></span></td>
+            <td class="row2" align="center" bgcolor="#dFdFdF"><span class="gen"><b>${I18n.getMessage("User.rankTitle")}</b></span></td>
 			<td class="row2" align="center" bgcolor="#dFdFdF"><span class="gen"><b>&nbsp;</b></span></td>
 			<td class="row2" align="center" bgcolor="#dFdFdF"><span class="gen"><b>&nbsp;</b></span></td>
 			<td class="row2" width="10%" align="center" bgcolor="#dFdFdF"><span class="gen"><b>${I18n.getMessage("Lock")}</b></span></td>
@@ -43,6 +44,11 @@
 			<tr>
 				<td class="row1" align="center"><span class="gen">${user.id}</span></td>
 				<td class="row1"><span class="gen">${user.username}</span></td>
+                <#assign img="">
+                    <#if user.yim??>
+                        <#assign img="<img src='${contextPath}/images/rank/${user.yim}' height='18px' style='vertical-align: top;'/>">
+                    </#if>
+                <td class="row1" align="center"><span class="gen">${user.aim!""}${img}</span></td>
 				<td class="row1" align="center"><span class="gen"><a href="${JForumContext.encodeURL("/jforum")}?module=adminUsers&amp;action=edit&amp;id=${user.id}">${I18n.getMessage("Edit")}</a></span></td>
 				<td class="row1" align="center"><span class="gen"><a href="${JForumContext.encodeURL("/jforum")}?module=adminUsers&amp;action=groups&amp;id=${user.id}">${I18n.getMessage("User.Groups")}</a></span></td>
 	
@@ -62,7 +68,7 @@
 				<input class="submit" type="button" value="${I18n.getMessage("Insert")}" onClick="document.location = '${JForumContext.encodeURL("/user/insert")}';" />&nbsp;&nbsp;	
 			</td>
 		-->
-			<td class="catbottom" colspan="6">
+			<td class="catbottom" colspan="7">
 				<input class="submit" type="submit" value="${I18n.getMessage("Lock")} / ${I18n.getMessage("Unlock")}" name="submit" />
 			</td>
 		</tr>

@@ -66,16 +66,7 @@ import net.jforum.dao.PollDAO;
 import net.jforum.dao.PostDAO;
 import net.jforum.dao.TopicDAO;
 import net.jforum.dao.UserDAO;
-import net.jforum.entities.Attachment;
-import net.jforum.entities.Forum;
-import net.jforum.entities.ModerationLog;
-import net.jforum.entities.Poll;
-import net.jforum.entities.PollChanges;
-import net.jforum.entities.Post;
-import net.jforum.entities.QuotaLimit;
-import net.jforum.entities.Topic;
-import net.jforum.entities.User;
-import net.jforum.entities.UserSession;
+import net.jforum.entities.*;
 import net.jforum.exceptions.AttachmentException;
 import net.jforum.exceptions.ForumException;
 import net.jforum.repository.ForumRepository;
@@ -231,7 +222,9 @@ public class PostAction extends Command
 		Map topicPosters = topicDao.topicPosters(topic.getId());
 		
 		for (Iterator iter = topicPosters.values().iterator(); iter.hasNext(); ) {
-			ViewCommon.prepareUserSignature((User)iter.next());
+            User u = (User)iter.next();
+			ViewCommon.prepareUserSignature(u);
+			u.setYim(RankingRepository.getRankImageByUserId(u.getId()));
 		}
 		
 		this.context.put("users", topicPosters);
@@ -1101,6 +1094,7 @@ public class PostAction extends Command
 				t.setFirstPostTime(ViewCommon.formatDate(t.getTime()));
 
 				int topicId = topicDao.addNew(t);
+				this.scoreAfterText(topicId);//计算得分
 				t.setId(topicId);
 				firstPost = true;
 			}
@@ -1142,6 +1136,9 @@ public class PostAction extends Command
 			// Save the remaining stuff
 			p.setModerate(moderate);
 			int postId = postDao.addNew(p);
+			if(!newTopic){
+			    this.scoreAfterComment(postId);
+            }
 
 			if (newTopic) {
 				t.setFirstPostId(postId);
@@ -1224,6 +1221,44 @@ public class PostAction extends Command
 			this.insert();
 		}
 	}
+
+    /**
+     * 主题id
+     * @param topicId
+     */
+	private void scoreAfterText(int topicId){
+        RankRecord bean = new RankRecord();
+        int userId = SessionFacade.getUserSession().getUserId();
+        bean.setPkId(topicId);
+        bean.setUserId(userId);
+        bean.setType("1");
+        int shouldScore = SystemGlobals.getIntValue("rank.post.score");//应该得分
+        int maxScore = SystemGlobals.getIntValue("rank.total.max");//单日得分上限
+        int todayScore = DataAccessDriver.getInstance().newRankRecordDAO().selectTodayScore(userId);//今日已得分
+        if(todayScore<maxScore){
+            bean.setScore(maxScore-todayScore>shouldScore?shouldScore:maxScore-todayScore);
+            DataAccessDriver.getInstance().newRankRecordDAO().add(bean);
+        }
+    }
+
+    /**
+     * 评论id
+     * @param postId
+     */
+    private void scoreAfterComment(int postId){
+        RankRecord bean = new RankRecord();
+        int userId = SessionFacade.getUserSession().getUserId();
+        bean.setPkId(postId);
+        bean.setUserId(userId);
+        bean.setType("2");
+        int shouldScore = SystemGlobals.getIntValue("rank.comment.score");//应该得分
+        int maxScore = SystemGlobals.getIntValue("rank.total.max");//单日得分上限
+        int todayScore = DataAccessDriver.getInstance().newRankRecordDAO().selectTodayScore(userId);//今日已得分
+        if(todayScore<maxScore){
+            bean.setScore(maxScore-todayScore>shouldScore?shouldScore:maxScore-todayScore);
+            DataAccessDriver.getInstance().newRankRecordDAO().add(bean);
+        }
+    }
 
 	private int startPage(Topic t, int currentStart) {
 		int postsPerPage = SystemGlobals.getIntValue(ConfigKeys.POSTS_PER_PAGE);

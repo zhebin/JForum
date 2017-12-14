@@ -45,6 +45,7 @@ package net.jforum.repository;
 import java.util.Iterator;
 import java.util.List;
 
+import net.jforum.SessionFacade;
 import net.jforum.cache.CacheEngine;
 import net.jforum.cache.Cacheable;
 import net.jforum.dao.DataAccessDriver;
@@ -106,6 +107,81 @@ public class RankingRepository implements Cacheable
 		
 		return title;
 	}
+
+	public static String getRankTitle(){
+        int userId = SessionFacade.getUserSession().getUserId();
+        int scores = DataAccessDriver.getInstance().newRankRecordDAO().selectTotalScore(userId);
+        List entries = (List)cache.get(FQN, ENTRIES);
+        String title = "";
+        int temp = 0;
+        for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+            Ranking r = (Ranking)iter.next();
+            if(scores>=r.getMin()&&r.getMin()>=temp){
+                title = r.getTitle();
+                temp = r.getMin();
+            }
+        }
+        return title;
+    }
+
+    public static Ranking getRankByUserId(int userId){
+        int scores = DataAccessDriver.getInstance().newRankRecordDAO().selectTotalScore(userId);
+        List entries = (List)cache.get(FQN, ENTRIES);
+        Ranking rank = new Ranking();
+        int temp = 0;
+        for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+            Ranking r = (Ranking)iter.next();
+            if(scores>=r.getMin()&&r.getMin()>=temp){
+                rank = r;
+                temp = r.getMin();
+            }
+        }
+        return rank;
+    }
+
+    public static String getRankImageByUserId(int userId){
+        int scores = DataAccessDriver.getInstance().newRankRecordDAO().selectTotalScore(userId);
+        List entries = (List)cache.get(FQN, ENTRIES);
+        Ranking rank = new Ranking();
+        int temp = 0;
+        for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+            Ranking r = (Ranking)iter.next();
+            if(scores>=r.getMin()&&r.getMin()>=temp){
+                rank = r;
+                temp = r.getMin();
+            }
+        }
+        return rank.getImage();
+    }
+
+    public static String getRankTitleByUserId(int userId){
+        int scores = DataAccessDriver.getInstance().newRankRecordDAO().selectTotalScore(userId);
+        List entries = (List)cache.get(FQN, ENTRIES);
+        Ranking rank = new Ranking();
+        int temp = 0;
+        for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+            Ranking r = (Ranking)iter.next();
+            if(scores>=r.getMin()&&r.getMin()>=temp){
+                rank = r;
+                temp = r.getMin();
+            }
+        }
+        return rank.getTitle();
+    }
+
+    public static Ranking getRankTitle(int score){
+        List entries = (List)cache.get(FQN, ENTRIES);
+        Ranking rank = new Ranking();
+        int temp = 0;
+        for (Iterator iter = entries.iterator(); iter.hasNext(); ) {
+            Ranking r = (Ranking)iter.next();
+            if(score>=r.getMin()&&r.getMin()>=temp){
+                rank = r;
+                temp = r.getMin();
+            }
+        }
+        return rank;
+    }
 	
 	private static String getRankTitleByPosts(int total)
 	{

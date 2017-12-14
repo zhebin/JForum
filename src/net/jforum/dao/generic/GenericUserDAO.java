@@ -494,6 +494,32 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 		return selectAll(0, 0);
 	}
 
+	public List selectAllForContact(){
+        PreparedStatement p = null;
+        ResultSet rs = null;
+
+        try {
+            p = JForumExecutionContext.getConnection().prepareStatement(
+                    SystemGlobals.getSql("UserModel.selectAllForContact"));
+            rs = p.executeQuery();
+            List list = new ArrayList();
+            while (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("user_id"));
+                u.setMsnm(rs.getString("user_msnm"));
+                u.setRankId(rs.getInt("total"));//临时占用这个变量
+                list.add(u);
+            }
+            return list;
+        }
+        catch (SQLException e) {
+            throw new DatabaseException(e);
+        }
+        finally {
+            DbUtils.close(rs, p);
+        }
+    }
+
 	/**
 	 * @see net.jforum.dao.UserDAO#selectAll(int, int)
 	 */
@@ -561,7 +587,7 @@ public class GenericUserDAO extends AutoKeys implements UserDAO
 			u.setFrom(rs.getString("user_from"));
 			u.setWebSite(rs.getString("user_website"));
 			u.setViewEmailEnabled(rs.getInt("user_viewemail") == 1);
-			u.setMsnm(rs.getString("user_msnm"));
+			//u.setMsnm(rs.getString("user_msnm"));
 			
 			list.add(u);
 		}

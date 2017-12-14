@@ -52,6 +52,7 @@ import net.jforum.dao.GroupDAO;
 import net.jforum.dao.UserDAO;
 import net.jforum.entities.Group;
 import net.jforum.entities.User;
+import net.jforum.repository.RankingRepository;
 import net.jforum.repository.SecurityRepository;
 import net.jforum.util.I18n;
 import net.jforum.util.TreeGroup;
@@ -71,8 +72,13 @@ public class UserAction extends AdminCommand
 	{
 		int start = this.preparePagination(DataAccessDriver.getInstance().newUserDAO().getTotalUsers());
 		int usersPerPage = SystemGlobals.getIntValue(ConfigKeys.USERS_PER_PAGE);
-		
-		this.context.put("users", DataAccessDriver.getInstance().newUserDAO().selectAll(start ,usersPerPage));
+		List<User> users = DataAccessDriver.getInstance().newUserDAO().selectAll(start ,usersPerPage);
+        for(User u:users){
+            u.setYim(RankingRepository.getRankImageByUserId(u.getId()));
+            u.setAim(RankingRepository.getRankByUserId(u.getId()).getTitle());
+        }
+		this.context.put("users", users);
+
 		this.commonData();
 	}
 	
