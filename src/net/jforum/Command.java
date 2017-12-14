@@ -65,6 +65,8 @@ import freemarker.template.Template;
  */
 public abstract class Command 
 {
+
+
 	private static Class[] NO_ARGS_CLASS = new Class[0];
 	private static Object[] NO_ARGS_OBJECT = new Object[0];
 	
