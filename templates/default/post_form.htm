@@ -1,0 +1,332 @@
+<#include "header.htm"/>
+<#assign preview = preview?default(false)/>
+<#assign logModeration = moderationLoggingEnabled && isEdit?default(false) && isModerator && user.id != post.userId/>
+<#assign allowPoll = setType?default(true) && canCreatePolls?default(false)/>
+<script type="text/javascript">
+	var CONTEXTPATH = "${contextPath}";
+	var SERVLET_EXTENSION  = "${extension}";
+</script>
+
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/tabs.css?${startupTime} );</style>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/SyntaxHighlighter.css?${startupTime} );</style>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/jquery.js?${startupTime}"></script>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/post.js?${startupTime}"></script>
+
+<script type="text/javascript" src="${contextPath}/xheditor/jquery/jquery-1.4.4.min.js"></script>
+<script type="text/javascript" src="${contextPath}/xheditor/xheditor-1.1.14-zh-cn.min.js"></script>
+<script type="text/javascript">
+	<#include "js/utils.js"/>
+	<#include "js/attachments.js"/>
+</script>
+<script type="text/javascript">
+	function newCaptcha()
+	{
+		document.getElementById("captcha_img").src = '${JForumContext.encodeURL("/jforum")}?module=captcha&action=generate&timestamp=' + new Date().getTime();
+	}
+	
+	function validatePostForm(f)
+	{
+		var str = $('#message').val().replace(/&nbsp;/g, '').replace(/<p>/g, '').replace(/<\/p>/g, '').replace(/ /g, '');
+		<#if setType?default(true)>
+			if (f.subject.value == "") {
+				alert("${I18n.getMessage("PostForm.subjectEmpty")}");
+				f.subject.focus();
+				return false;
+			}
+		</#if>
+		if (str.length == 0) {
+			alert("${I18n.getMessage("PostForm.textEmpty")}");
+			$('#message').focus();
+			return false;
+		}
+	
+		<#if !forum?exists>
+			if (f.toUsername.value == "") {
+				alert("${I18n.getMessage("PrivateMessage.toUserIsEmpy")}");
+				f.toUsername.focus();
+				return false;
+			}
+		</#if>
+		/** 变更日志
+		<#if logModeration>
+			if (f.log_description.value == "") {
+				alert("${I18n.getMessage("ModerationLog.reasonIsEmpty")}");
+				f.log_description.focus();
+		
+				return false;
+			}
+		</#if>
+		*/
+		$("#icon_saving").css("display", "inline");
+		$("#btnPreview").attr("disabled", "disabled");
+		$("#btnSubmit").attr("disabled", "disabled").val("${I18n.getMessage("PostForm.saving")}...");
+		
+		return true;
+	}
+	
+	function openFindUserWindow()
+	{
+		//document.location = "${JForumContext.encodeURL('/pm/findUser')}";
+		var w = window.open("${JForumContext.encodeURL('/pm/findUser')}", "_findUser", "height=250,resizable=yes,width=400");
+		w.focus();
+	}
+	/** 打开表情列表窗口
+	function smiliePopup()
+	{
+		var w = window.open("${JForumContext.encodeURL("/posts/listSmilies")}", "smilies", "width=300, height=300, toolbars=no, scrollbars=yes");
+		w.focus();
+	}
+	*/
+</script>
+
+<#assign preview = preview?exists && preview/>
+<#assign isNewPost = isNewPost?exists && isNewPost/>
+<#assign isEdit = isEdit?if_exists/>
+<#assign isNewTopic = (!topic?exists || topic.id == -1)/>
+<#assign attachmentsEnabled = attachmentsEnabled?exists && attachmentsEnabled/>
+
+<#if !maxAttachments?exists>
+	<#assign maxAttachments = 0/>
+</#if>
+
+<form action="${JForumContext.encodeURL("/jforum")}" method="post" enctype="multipart/form-data" name="post" id="post" onsubmit="return validatePostForm(this)">
+	<input type="hidden" name="action" value="${action}" />
+	<input type="hidden" name="module" value="${moduleName}" />
+	<input type="hidden" name="preview" value="0"/>
+	<#if forum?exists><input type="hidden" name="forum_id" value="${forum.id}" /></#if>
+	<input type="hidden" name="start" value="${start?default("")}" />
+	<#if isEdit><input type="hidden" name="post_id" value="${post.id}" /></#if>
+	<#if !isNewTopic><input type="hidden" name="topic_id" value="${topic.id}" /></#if>
+	<div id="nav">
+		<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a>
+		<#if forum?exists>
+			&raquo; <a class="nav" href="${JForumContext.encodeURL("/forums/show/${forum.id}")}">${forum.name}</a>
+		</#if>
+	</div>
+	<div id="foruminfo">
+		<DIV class="mainbox">
+			<H1>
+				<#if forum?exists>
+					<#if (topic?exists && topic.id > -1)>
+					    <#if isEdit>
+					    	${I18n.getMessage("PostForm.edit")} "${topic.title?html}"
+					    <#else>
+							${I18n.getMessage("PostForm.reply")} "${topic.title?html}"
+						</#if>
+					<#else>
+						${I18n.getMessage("PostForm.title")}
+					</#if>
+				<#else>
+					<#if pmReply?default(false)>
+						${I18n.getMessage("PrivateMessage.reply")}
+					<#else>
+						${I18n.getMessage("PrivateMessage.title")}
+					</#if>
+				</#if>
+			</H1>
+			<table class="mainbox" cellspacing="1" cellpadding="3" width="100%" border="0">
+				<#if !forum?exists>
+					<tr>
+						<td class="row1" width="15%">
+							<span class="gen"><b>${I18n.getMessage("PrivateMessage.user")}</b></span>
+						</td>
+						<td class="row2">
+							<#if pmRecipient?exists>
+								<#assign toUsername = toUsername/>
+								<#assign toUserId = toUserId/>
+							<#elseif preview>
+								<#assign toUsername = pm.toUser.msnm/>
+								<#assign toUserId = pm.toUser.id/>
+							<#elseif quote?default("") == "true" || pmReply?default(false)>
+								<#assign toUsername = pm.fromUser.msnm/>
+								<#assign toUserId = pm.fromUser.id/>
+							<#else>
+								<#assign toUsername = ""/>
+								<#assign toUserId = ""/>
+							</#if>
+							<!-- <input type="text" class="post" size="25" name="toUsername" value="${toUsername}"/>&nbsp;
+							<input type="button" value="${I18n.getMessage("PrivateMessage.findUser")}" name="findUser" class="submit" onclick="openFindUserWindow(); return false;" />
+							<input type="hidden" name="toUserId" value="${toUserId}" /> -->
+							<input type="text" class="post" size="25" name="toUsername" value="${toUsername1}"/>&nbsp;
+							<input type="button" value="${I18n.getMessage("PrivateMessage.findUser")}" name="findUser" class="submit" onclick="openFindUserWindow(); return false;" />
+							<input type="hidden" name="toUserId" value="${toUserId1}" />
+						</td>
+					</tr>
+				</#if>
+			
+				<#if errorMessage?exists>
+					<tr>
+						<td colspan="2" align="center"><span class="gen"><font color="#ff0000"><b>${errorMessage}</b></font></span></td>
+					</tr>
+				</#if>
+			
+				<tr>
+					<td class="row1" width="15%"><span class="gen"><b>${I18n.getMessage("PostForm.subject")}</b></span></td>
+					<#if topic?exists>
+						<#if isEdit>
+							<#assign subject = post.subject?default("")?html/>
+						<#else>
+							<#assign subject = I18n.getMessage("Message.replyPrefix") + topic.title?default("")?html/>
+						</#if>
+					<#elseif pmReply?default(false)>
+						<#assign subject = pm.post.subject?html/>
+					<#elseif post?exists>
+						<#assign subject = post.subject?default("")?html/>
+					</#if>
+					<td class="row2">
+						<input width="100%" class="subject" type="text" tabindex="2" maxlength="100" name="subject" value="${subject?default("")}" size="118"/>
+					</td>
+				</tr>
+			
+				<tr>
+					<td class="row1" width="15%"><span class="gen"><b>${I18n.getMessage("PostForm.body")}</b></span></td>
+			
+					<!-- BB Codes, textarea -->
+					<td class="row2" valign="top">
+						<div class="gen">
+							<textarea class="xheditor {emotPath:'${forumLink}xheditor/xheditor_emot/'}" tabindex="3" name="message" id="message" rows="18" cols="120">
+								<#if post?exists>
+									<#if quote?exists>
+										<div><fieldset><legend>${quoteUser}</legend><br />${post.text?html}<br /></fieldset></div><br />
+									<#else>
+										${post.text?html}
+									</#if>
+								</#if>
+							</textarea> 
+						</div>
+					</td>
+				</tr>
+			
+				<!-- Options -->
+				<tr>
+					<td class="row1">&nbsp;</td>
+					<td class="row2">
+						<div id="tabs10" style="border-bottom:0px;">
+							<ul>
+								<#if allowPoll>
+									<li target="postPoll">
+										<a href="javascript:void(0);" onClick="activateTab('postPoll', this);">
+											<span>${I18n.getMessage("Permissions.poll")}</span>
+										</a>
+									</li>
+								</#if>
+								<#if attachmentsEnabled>
+								    <li target="postAttachments">
+								    	<a href="javascript:void(0);" onClick="activateTab('postAttachments', this);">
+								    		<span>${I18n.getMessage("PostForm.addAttachments")}</span>
+								    	</a>
+								    </li>
+								</#if>
+							</ul>
+						</div>
+						<!-- Post Options -->
+						<div id="postOptions" class="postTabContents" style="display:none">
+							<#include "post_options_tab.htm"/>
+						</div>
+						<div>
+							<table cellspacing="0" cellpadding="1" border="0" class="genmed" style="table-layout:auto">
+								<#if setType?default(true) && forum?exists && canCreateStickyOrAnnouncementTopics?default(false)>
+									<tr>
+										<td colspan="2" style="border-top:0px;">
+											${I18n.getMessage("PostForm.setTopicAs")}:
+											<input type="radio" checked="checked" value="0" id="topic_type0" name="topic_type" <#if topic?exists && topic.type == 0>checked="checked"</#if> /><label for="topic_type0">${I18n.getMessage("PostForm.setTopicAsNormal")}</label>&nbsp;&nbsp;
+											<input type="radio" value="1" id="topic_type1" name="topic_type" <#if topic?exists && topic.type == 1>checked="checked"</#if> /><label for="topic_type1">${I18n.getMessage("PostForm.setTopicAsSticky")}</label>&nbsp;&nbsp;
+											<input type="radio" value="2" id="topic_type2" name="topic_type" <#if topic?exists && topic.type == 2>checked="checked"</#if> /><label for="topic_type2">${I18n.getMessage("PostForm.setTopicAsAnnounce")}</label>&nbsp;&nbsp;
+										</td>
+									</tr>
+								<#elseif topic?exists>
+									<input type="hidden" name="topic_type" value="${topic.type}" />
+								</#if>
+							</table>
+						</div>
+		
+						<!-- Poll tab -->
+						<#if allowPoll>
+							<div id="postPoll" class="postTabContents" style="display:none">
+								<div>
+									<#include "post_poll_tab.htm"/>
+								</div>
+							</div>
+						</#if>
+		
+						<!-- Attachments tab -->
+						<#if attachmentsEnabled || attachments?exists>
+							<div id="postAttachments" class="postTabContents" style="display: none; ">
+								<div>
+									<#include "post_attachments_tab.htm"/>
+								</div>
+							</div>
+						</#if>
+					</td>
+				</tr>
+				
+				<!-- 图片验证 -->
+				<#if needCaptcha?default(false)>
+					<tr>
+						<td class="row1" valign="middle"><span class="gensmall"><b>${I18n.getMessage("User.captchaResponse")}:</b></span></td>
+						<td class="row2">
+							<input type="text" class="post" style="width: 100px; font-weight: bold;" maxlength="25" size="25" name="captcha_anwser" /> 
+							<img src="${JForumContext.encodeURL("/captcha/generate/${timestamp}")}" border="0" align="middle" id="captcha_img" alt="Captcha unavailable" />
+							<br />
+							<span class="gensmall">${I18n.getMessage("User.hardCaptchaPart1")} <a href="#newCaptcha" onClick="newCaptcha()"><b>${I18n.getMessage("User.hardCaptchaPart2")}</b></a></span>
+						</td>
+					</tr>
+				</#if>
+			
+				<!-- 管理日志 -->
+				<#if logModeration>
+					<tr style="display:none">
+						<td align="center" class="row1 gen"><b>${I18n.getMessage("ModerationLog.moderationLog")}</b></td>
+						<td class="row2 genmed">${I18n.getMessage("ModerationLog.changeReason")} <input type="text" name="log_description" size="50" /><input type="hidden" name="log_type" value="2" /></td>
+					</tr>
+				</#if>
+				<#if error?exists>
+					<tr>
+						<td class="row1">&nbsp;</td>
+						<td class="row2"><span class="gen"><font color="red"><b>${error}</b></font></span></td>
+					</tr>
+				</#if>
+				
+				<tr>
+				<td/>
+					<td align="left" height="28" colspan="2" class="catbottom">
+					<!-- 预览按钮 
+						<input class="submit" id="btnPreview" tabindex="5" type="button" value="${I18n.getMessage("PostForm.preview")}" onclick="previewMessage();" />&nbsp;
+					-->
+						<input class="submit" id="btnSubmit" accesskey="s" tabindex="6" type="submit" value="${I18n.getMessage("PostForm.submit")}" name="post" />
+					</td>
+				</tr>
+			</table>
+		</div>
+		<!-- 预览区域 
+			<DIV class="mainbox viewtopic" <#if !preview>style="display: none"</#if>  id="previewTable">
+				<table class="mainbox" width="100%" cellspacing="1" cellpadding="4" border="0">
+					<tr>
+						<td class="row1" style="border-top:0px;">
+							<h1>${I18n.getMessage("PostForm.preview")}</h1>
+							<img src="${contextPath}/templates/${templateName}/images/icon_minipost.gif"/>
+							<span class="postdetails" id="previewSubject"> 
+								${I18n.getMessage("PostForm.subject")}: <#if postPreview?exists>${postPreview.subject?html}</#if>
+							</span>
+						</td>
+					</tr>
+					<tr>
+						<td class="row1" height="100%" style="border-top:0px;">
+							<span id="previewMessage" class="postbody"><#if postPreview?exists>${postPreview.text}</#if></span>
+						</td>
+					</tr>
+				</table>
+			</div>
+		-->
+	</div>
+	<script type="text/javascript">
+		<#if attachments?exists>
+			ignoreStart = true;
+			editAttachments();
+		</#if>
+		
+		<#if preview>document.location = "#preview";</#if>
+	</script>
+</form>
+<#include "highlighter_js.htm"/>
+<#include "bottom.htm"/>

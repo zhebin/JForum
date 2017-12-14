@@ -1,0 +1,372 @@
+<#include "header.htm"/>
+<#import "../macros/pagination.ftl" as pagination/>
+<#import "../macros/presentation.ftl" as presentation/>
+
+<#assign canEditSomeMessage = false/>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/jquery.js?${startupTime}"></script>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/jquery.jeditable.pack.js?${startupTime}"></script>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/post_show.js?${startupTime}"></script>
+<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/post.js?${startupTime}"></script>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/SyntaxHighlighter.css?${startupTime} );</style>
+
+<#if logged>
+	<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/watch.js?${startupTime}"></script>
+</#if>
+<script type="text/javascript">
+	<#include "js/karma.js">
+	<#include "js/utils.js"/>
+	<#include "js/pagination.js"/>
+	
+	<#if canRemove || isModerator || isAdmin>
+	function confirmDelete(postId)
+	{
+		if (confirm("${I18n.getMessage("Moderation.ConfirmPostDelete")}")) {
+			var link = document.getElementById("delete" + postId);
+			link.href += "&log_description= &log_type=1";
+
+			return true;
+		}
+		
+		return false;
+	}
+</#if>
+</script>
+<script type="text/javascript">
+	var  tempid="";
+	function newCaptcha(id)
+	{
+		document.getElementById("captcha_img"+id).src = "${contextPath}/jforum${extension}?module=captcha&action=generate&timestamp=" + new Date();
+	}	
+
+	function activateQuickReply(id)
+	{
+		if(tempid==""){
+			$("#captcha_img"+id).attr("src", "${contextPath}/captcha/generate/"+new Date()+".html");
+			$("#quickReply"+id).slideToggle('slow', function() {
+					//window.scrollBy(0, 1000);
+			});
+		}else{
+			if(tempid==id){
+				$("#quickReply"+id).slideToggle('slow', function() {
+					//window.scrollBy(0, 1000);
+				});
+				tempid ="";
+				return;
+			}else{
+				$("#captcha_img"+id).attr("src", "${contextPath}/captcha/generate/"+new Date()+".html");
+				$("#quickReply"+tempid).slideToggle('slow', function() {
+					//window.scrollBy(0, 1000);
+				});		
+				$("#quickReply"+id).slideToggle('slow', function() {
+					//window.scrollBy(0, 1000);
+				});
+			}
+		}
+		tempid = id;
+	}
+	
+	function validatePostForm(f)
+	{
+		if (f.message.value.replace(/^\s*|\s*$/g, "").length == 0) {
+			alert("${I18n.getMessage("PostForm.textEmpty")}");
+			f.message.focus();
+			return false;
+		}
+	
+		$("#icon_saving").css("display", "inline");
+		$("#btnSubmit").attr("disabled", "disabled").val("${I18n.getMessage("PostForm.saving")}...");
+	
+		return true;
+	}
+</script>
+<#if moderator>
+	<script type="text/JavaScript" src="${JForumContext.encodeURL("/js/list/moderation")}"></script>
+</#if>
+<div id="nav">
+	<span class="nav">
+		<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")} </a> 
+		&raquo; 
+		<a class="nav" href="${JForumContext.encodeURL("/forums/show/${forum.id}")}">${forum.name} </a>
+	</span>
+	&raquo;
+	<span class="maintitle"><a href="${JForumContext.encodeURL("/posts/list/${topic.id}")}" name="top" class="maintitle" id="top">${topic.title?html}</a></span>
+</div>
+
+<DIV class=pages_btns>
+	<div class="pages">
+		<a href="${JForumContext.encodeURL("/forums/show/${forum.id}")}" class="next"> &lsaquo;&lsaquo; ${forum.name}</a>
+	</div>
+	<#assign paginationData><@pagination.doPagination "list", topic.id/></#assign>${paginationData}
+	<SPAN class=postbtn id="newtopic">
+		<A href="${JForumContext.encodeURL("/jforum${extension}?module=posts&amp;action=insert&amp;forum_id=${forum.id}", "")}">
+			<IMG src="${contextPath}/templates/${templateName}/images/newtopic.gif" border=0>
+		</A>
+	</SPAN>
+	<#if !readonly && topic.status != STATUS_LOCKED>
+		<SPAN class=replybtn>
+			<a href="${JForumContext.encodeURL("/posts/reply/${start}/${topic.id}")}">
+				<IMG src="${contextPath}/templates/${templateName}/images/reply.gif" border=0>
+			</a>
+		</SPAN>
+	</#if>
+</DIV>
+
+<div id="headfilter">
+	<ul class="tabs">
+	    <#if logged>
+			<#if bookmarksEnabled>
+				<li><a href="javascript:addBookmark(2, ${topic.id});">${I18n.getMessage("Bookmarks.addTo")}</a></li>
+			</#if>
+		
+			<#if !watching>
+				<#assign watchMessage = I18n.getMessage("PostShow.watch")/>
+				<li><a href="#watch" onClick="watchTopic('${JForumContext.encodeURL("/posts/watch/${start}/${topic.id}")}', '${I18n.getMessage("PostShow.confirmWatch")}');">${watchMessage}</a></li>
+			<#else>
+				<#assign watchMessage = I18n.getMessage("PostShow.unwatch")/>
+				<li><a href="${JForumContext.encodeURL("/posts/unwatch/${start}/${topic.id}")}">${watchMessage}</a></li>
+			</#if>
+		</#if>
+		<#if isModerator || isAdmin>
+				<form action="${JForumContext.encodeURL("/jforum")}" method="post" name="formModeration" id="formModeration">
+				<input type="hidden" name="action" value="doModeration" />
+				<input type="hidden" name="module" value="moderation" />
+				<input type="hidden" name="returnUrl" value="${JForumContext.encodeURL("/${moduleName}/${action}/${start}/${topic.id}")}" />
+				<input type="hidden" name="forum_id" value="${topic.forumId}" />
+				<input type="hidden" name="topic_id" value="${topic.id}" />
+				<input type="hidden" name="log_type" value="0"/>
+				<input type="hidden" name="log_description">
+				<input type="hidden" id="moderationTodo" />
+				<@presentation.moderationImages/>
+				</form>
+		</#if>
+		<!--  
+		<#if rssEnabled>
+			<li style="border: medium none ;"><a href="${JForumContext.encodeURL("/rss/topicPosts/${topic.id}")}"><img src="${contextPath}/templates/${templateName}/images/xml_button.gif" border="0" alt="XML" /></a></li>
+		</#if>
+		-->
+	</ul>
+</div>
+
+<div id="foruminfo">
+	<#assign isShowPoll = 0/>
+	<#list posts as post>
+	<#assign user = users.get(post.userId)/>
+	<#assign canEditCurrentMessage = (post.canEdit && topic.status != STATUS_LOCKED) || moderatorCanEdit/>
+		<DIV class="mainbox viewtopic">
+			<#if post_index == 0>
+				<H1>${forum.name}</H1>
+			</#if>
+			<TABLE id="rid0" cellSpacing=0 cellPadding=0>
+				<TBODY>
+					<TR>
+					    <TD class=postauthor rowspan="2">
+							<#include "post_show_user_inc.htm"/>
+						</TD>
+					    <TD class=postdetail>
+							<DIV class=postinfo>
+								<#if start+post_index == 0>
+									<STRONG>${I18n.getMessage("owner")}</STRONG>
+								<#else>
+									<STRONG>${start+post_index}
+										<SUP>#</SUP>
+									</STRONG>
+								</#if>
+								<#if post.editTime?exists>
+									${post.editTime?datetime?string}&nbsp;&nbsp;
+								</#if>
+								<#if post.userIp?exists && isModerator>
+									${I18n.getMessage("PostShow.userIP")}:${post.userIp}
+								</#if>
+							</DIV>
+							<#assign useSignature = (user.attachSignatureEnabled && user.signature?exists && user.signature?length > 0 && post.isSignatureEnabled())/>
+							<DIV class="postcontent">
+						    	<DIV id="content_0" class=contentmsg>
+									<#if ((isShowPoll==0)&&(poll?exists))>
+										<#assign isShowPoll = 1/>
+								    	<table cellspacing="1" cellpadding="3" style="width:98%" align="center">
+											<tr>
+												<td colspan="2" style="border-top:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;"><b>${I18n.getMessage("PostShow.pollTitle")}</b>:${poll.label?html}</td>
+											</tr>
+											<#if (poll.open && canVoteOnPoll && !request.getParameter("viewResults")?exists)>
+												<form action="${JForumContext.encodeURL("/jforum")}" method="post">
+													<input type="hidden" name="action" value="vote" />
+													<input type="hidden" name="module" value="${moduleName}" />
+													<input type="hidden" name="poll_id" value="${poll.id}" />
+													<input type="hidden" name="topic_id" value="${topic.id}" />
+													<tr>
+														<td class="row1" colspan="2" align="center" style="border-top:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;border-bottom:#ddd 1px solid;">
+															<div class="poll" align="left">
+																<#list poll.options as option>
+																	<input type="radio" name="poll_option" value="${option.id}">${option.text?html}</input><br/>
+																</#list>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td align="center" colspan="2" style="border-bottom:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;border-top:0px;">
+															<input type="submit" class="submit" value="${I18n.getMessage("PostShow.pollVote")}"></input>
+															<span class="gensmall" align="center">
+																<input type="button" class="submit" value="${I18n.getMessage("PostShow.showPollResults")}" onclick="document.location='${JForumContext.encodeURL("/jforum${extension}?module=posts&amp;action=list&amp;topic_id=${topic.id}&amp;viewResults=true", "")}'"></input>
+															</span>
+														</td>
+													</tr>
+												</form>
+											<#else>
+												<tr>
+													<td class="row1" colspan="2" align="center" style="border-top:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;border-bottom:#ddd 1px solid;">
+														<@presentation.renderPoll poll/>
+													</td>
+												</tr>
+											</#if>
+										</table>
+										<br />
+									</#if>
+							        <#if canEditCurrentMessage>
+										<#assign canEditSomeMessage = true/>
+									</#if>
+									<div class="edit_area" id="${post.id}">
+										${post.text}
+									</div>
+									<!-- Attachments -->
+									<#if post.hasAttachments() && (canDownloadAttachments || attachmentsEnabled)>
+										<#assign attachments = am.getAttachments(post.id, post.forumId)/>
+										<#include "post_show_attachments_inc.htm"/>
+									</#if>
+								</DIV>
+							</DIV>
+						</TD>
+					</TR>
+				    <TR>
+					    <TD class=postfooter>
+					    	<div style="height:30px;line-height:30px;padding-top:3px;border-top:#ddd 1px solid;">
+							   	<b>${I18n.getMessage("User.signature")}:</b>
+								<#if useSignature>
+									${user.signature}					
+							  	</#if>
+					    	</div>
+							<#include "post_show_action_buttons_inc.htm"/>
+						</TD>
+				    </TR>
+				</TBODY>
+			</TABLE>
+		</DIV>
+	</#list>
+</div>
+
+<table width="100%" align="center">
+	<#if topic.status != STATUS_LOCKED && !readonly>
+		<tr>
+			<td colspan="3">
+			<script type="text/javascript">
+				function newCaptcha()
+				{
+					document.getElementById("captcha_img").src = "${contextPath}/jforum${extension}?module=captcha&action=generate&timestamp=" + new Date().getTime();
+				}
+				
+				function activateQuickReply()
+				{
+					$("#captcha_img").attr("src", "${JForumContext.encodeURL("/captcha/generate/${timestamp}")}");
+					$("#quickReply").slideToggle('slow', function() {
+						window.scrollBy(0, 1000);
+					});
+				}
+		
+				function validatePostForm(f)
+				{
+					if (f.message.value.replace(/^\s*|\s*$/g, "").length == 0) {
+						alert("${I18n.getMessage("PostForm.textEmpty")}");
+						f.message.focus();
+					
+						return false;
+					}
+				
+					$("#icon_saving").css("display", "inline");
+					$("#btnSubmit").attr("disabled", "disabled").val("${I18n.getMessage("PostForm.saving")}...");
+				
+					return true;
+				}
+			</script>
+						
+			<form action="${JForumContext.encodeURL("/jforum")}" method="post" name="post" id="post" onsubmit="return validatePostForm(this);" enctype="multipart/form-data" accept-charset="${encoding}">
+				<input type="hidden" name="action" value="insertSave" />
+				<input type="hidden" name="module" value="posts" />
+				<input type="hidden" name="forum_id" value="${forum.id}" />
+				<input type="hidden" name="start" value="${start?default("")}" />
+				<input type="hidden" name="topic_id" value="${topic.id}" />
+				<input type="hidden" name="disable_html" value="1" />
+				<input type="hidden" name="quick" value="1" />
+				<p align="center" style="display: none;" id="quickReply">
+					<table>
+						<tr>
+							<td align="center">
+								<textarea class="post" style="width: 500px" name="message" rows="10" cols="50" onkeyup="enterText(this);" onclick="enterText(this);" onselect="enterText(this);" onblur="leaveText();"></textarea>
+							</td>
+						</tr>
+						<#if needCaptcha?default(false)>
+							<tr>
+								<td>
+									<img border="0" align="middle" id="captcha_img"/>
+									<br />
+									<span class="gensmall">${I18n.getMessage("User.captchaResponse")}</span>
+									<input type="text" class="post" style="width: 80px; font-weight: bold;" maxlength="25" name="captcha_anwser" /> 
+									<br />
+									<span class="gensmall">${I18n.getMessage("User.hardCaptchaPart1")} <a href="#newCaptcha" onClick="newCaptcha()"><b>${I18n.getMessage("User.hardCaptchaPart2")}</b></a></span>
+								</td>
+							</tr>
+						</#if>
+						<tr>
+							<td align="right" valign="center">
+								<input type="submit" id="btnSubmit" value="${I18n.getMessage("PostForm.submit")}" class="submit" />
+							</td>
+						</tr>
+					</table>
+				</p>
+			</form>
+		</p>
+
+			</td>
+		</tr>
+	</#if>
+</table>
+<DIV class=pages_btns>
+	<div class="pages">
+		<a href="${JForumContext.encodeURL("/forums/show/${forum.id}")}" class="next"> &lsaquo;&lsaquo; ${forum.name}</a>
+	</div>
+	<#assign paginationData><@pagination.doPagination "list", topic.id/></#assign>${paginationData}
+	<SPAN class=postbtn id="newtopic">
+		<A href="${JForumContext.encodeURL("/jforum${extension}?module=posts&amp;action=insert&amp;forum_id=${forum.id}", "")}">
+			<IMG src="${contextPath}/templates/${templateName}/images/newtopic.gif" border=0>
+		</A>
+	</SPAN>
+	<#if !readonly && topic.status != STATUS_LOCKED>
+		<SPAN class=replybtn>
+			<a href="${JForumContext.encodeURL("/posts/reply/${start}/${topic.id}")}">
+				<IMG src="${contextPath}/templates/${templateName}/images/reply.gif" border=0>
+			</a>
+		</SPAN>
+		<SPAN class=replybtn>
+			<a href="javascript:activateQuickReply()">
+				<IMG src="${contextPath}/templates/${templateName}/images/quickreply.gif" border=0>
+			</a>
+		</SPAN>
+	</#if>
+</DIV>
+<div id="nav">
+	<span class="nav">
+	<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")} </a> 
+	&raquo; <a class="nav" href="${JForumContext.encodeURL("/forums/show/${forum.id}")}">${forum.name} </a></span>
+	&raquo;<span class="maintitle"><a href="${JForumContext.encodeURL("/posts/list/${topic.id}")}" name="top" class="maintitle" id="top">${topic.title?html}</a></span>
+</div>
+<a name="quick"></a>
+
+<script type="text/javascript">
+$(document).ready(function() {
+	limitURLSize();
+});
+</script>
+<DIV class=legend id=footfilter>
+	<DIV class=jump_sort>
+		<@presentation.forumsComboTable/>
+	</DIV>
+</DIV>
+<#include "bottom.htm"/>

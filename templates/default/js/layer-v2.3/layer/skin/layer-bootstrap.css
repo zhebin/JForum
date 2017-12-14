@@ -1,0 +1,52 @@
+/*
+ * 对layer弹出modal外框设置为bootstrap风格
+ */
+
+.layui-layer.bs-modal {
+    background-color: #fff;
+    border: 1px solid #999;
+    border: 1px solid rgba(0,0,0,.2);
+    border-radius: 6px;
+    outline: 0;
+	overflow: hidden;
+    -webkit-box-shadow: 0 3px 9px rgba(0,0,0,.5);
+    box-shadow: 0 3px 9px rgba(0,0,0,.5);
+}
+.layui-layer.bs-modal .layui-layer-btn a{
+	display: inline-block;
+    padding: 3px 20px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+.layui-layer.bs-modal .layui-layer-btn .layui-layer-btn0 {
+	color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+.layui-layer.bs-modal .layui-layer-btn .layui-layer-btn0:hover {
+	background-color: #255f90;
+	border-color: #2e6da4;
+}
+.layui-layer.bs-modal .layui-layer-btn .layui-layer-btn1 {
+	color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+.layui-layer.bs-modal .layui-layer-btn .layui-layer-btn1:hover {
+	background-color: #e6e6e6;
+    border-color: #adadad;
+}

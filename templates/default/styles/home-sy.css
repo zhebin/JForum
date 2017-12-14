@@ -1,0 +1,149 @@
+body {
+	margin: 0px;
+	padding: 0px;
+	color: #343434;
+	font-size: 12px;
+	font-family: "\5b8b\4f53";
+	_height: 100%;
+}
+
+img {
+	border: 0px;
+	vertical-align: middle;
+}
+
+a,a:link,a:active,a:visited {
+	color: #000;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #ff0000;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+/* p-p-t-icotabs end */ /* p-table and p-table2 begin */
+.p-table {
+	width: 96%;
+	margin: 0px 0px 16px 2%;
+	border-collapse: separate;
+	border-spacing: 3px;
+}
+
+.p-table td {
+	line-height: 24px;
+	padding-left: 8px;
+}
+
+.p-table thead td {
+	height: 30px;
+	color: #313131;
+	background: #f1f1f1;
+}
+
+
+.p-table td a {
+	color: #2b2b2b;
+	text-decoration: none;
+}
+
+.p-table td a:hover {
+	color: #ff0000;
+	text-decoration: underline;
+}
+
+.p-table td a {
+	width: 230px;
+	float: left;
+	font-size: 14px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.p-table td span {
+	float: right;
+	font-size: 12px;
+}
+.p-table a.liststyle01{
+	padding-left:12px;
+	background:url(../images/liststyle01.png) no-repeat left center;
+}
+
+
+/* pt-list-scrollPane begin */
+
+.morePane{
+	position:absolute;
+	right:4%;
+	width:92px;
+	height:22px;
+	margin:0 0 5px 0;
+	background-image:url(../images/more_bg.gif);
+	background-repeat:no-repeat;
+}
+
+.pt-list-scrollPane{
+	position:relative;
+	margin-bottom:5px;
+	padding-top:10px;
+}
+.pt-list-div{
+	position:relative;
+	height:100%;
+}
+.pt-listlist{
+	border:1px solid #eef6ff
+}
+.p-p-t-scroll{
+	position:absolute;
+	right:-20px;
+}
+.p-p-t-scroll-up,
+.p-p-t-scroll-down{
+	position:absolute;
+	width:10px;
+	height:22px;
+	background-image:url(../images/p-p-t-scroll-arrow.gif);
+	background-repeat:no-repeat;
+}
+.p-p-t-scroll-down{
+	background-position: -6px 0;
+	right:9px;
+}
+.p-p-t-scroll-up{
+	right:30px;
+	background-position:-25px top;
+}
+.p-p-more{
+	position:absolute;
+	left:8px;
+	width:15px;
+	height:22px;
+	line-height:22px;
+	padding-right:5px;
+	background:url(../images/more.gif) no-repeat center;
+}
+.p-p-linebar,.p-p-linebar2{
+	position:absolute;
+	left:32px;
+	width:15px;
+	height:22px;
+	line-height:22px;
+	background:url(../images/more-bar.gif) no-repeat center;
+}
+.p-p-linebar2{left:53px}
+.p-p-frach{
+	position:absolute;
+	left:32px;
+	width:15px;
+	height:22px;
+	background:url(../images/frash-01.gif) no-repeat center 4px;
+	line-height:14px;
+	padding-right:11px;}
+
+/* pt-list-scrollPane end */

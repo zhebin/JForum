@@ -1,0 +1,20 @@
+<!-- BEGIN ERROR STACK TRACE
+${stackTrace}
+END ERROR STACK TRACE-->
+<#assign language = language?default("en_US")/>
+<#assign message = "<p style=\"color:red; font-weight:bold\">An error has occurred.</p><p>For detailed error information, please see the HTML source code, and contact the forum Administrator.</p><pre class=\"pre-error\"><i>" + message + "</i></pre>"/>
+<#if templateName?exists && dateTimeFormat?exists>
+	<#include "${templateName}/message.htm"/>
+<#else>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>Error</title>
+	</head>
+	<body>
+		This is my page!
+		${message}
+	</body>
+</html>
+</#if>
+

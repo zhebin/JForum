@@ -1,0 +1,32 @@
+<table cellspacing="0" cellpadding="1" border="0" class="genmed" style="table-layout:auto">
+	<#if htmlAllowed>
+		<tr>
+			<td style="border-top:0px;"><input type="checkbox" id="disable_html" name="disable_html" /></td>
+			<td style="border-top:0px;"><label for="disable_html">${I18n.getMessage("PostForm.disableHtml")}</label></td>
+		</tr>
+	<#else>
+		<input type="hidden" name="disable_html" value="1" />
+	</#if>
+	<tr>
+		<td style="border-top:0px;"><input type="checkbox" id="disable_bbcode" name="disable_bbcode" /> </td>
+		<td style="border-top:0px;"><label for="disable_bbcode">${I18n.getMessage("PostForm.disableBbCode")}</label></td>
+	</tr>
+	<tr>
+		<td style="border-top:0px;"><input type="checkbox" id="disable_smilies" name="disable_smilies" /> </td>
+		<td style="border-top:0px;"><label for="disable_smilies">${I18n.getMessage("PostForm.disableSmilies")}</label></td>
+	</tr>
+
+	<#if user.id != 1>
+		<tr>
+			<td style="border-top:0px;"><input type="checkbox" id="attach_sig" name="attach_sig" CHECKED="true" /> </td>
+			<td style="border-top:0px;"><label for="attach_sig">${I18n.getMessage("PostForm.appendSignature")}</label></td>
+		</tr>
+
+		<#if forum?exists>
+		<tr>
+			<td style="border-top:0px;"><input type="checkbox" id="notify" name="notify" /> </td>
+			<td style="border-top:0px;"><label for="notify">${I18n.getMessage("PostForm.notifyReplies")}</label></td>
+		</tr>
+		</#if>
+	</#if>
+</table>

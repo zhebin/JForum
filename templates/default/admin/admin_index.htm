@@ -1,0 +1,17 @@
+<html>
+	<head>
+		<link rel="Shortcut Icon" href="${contextPath}/images/icos/bbs_ico.ico" />
+		<title>JForum - Administration interface</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=${encoding}">
+	</head>
+	
+	<frameset rows="*" cols="200,*" framespacing="0" frameborder="NO" border="0">
+		<frame src="${JForumContext.encodeURL("/jforum")}?module=admBase&amp;action=menu" name="leftFrame" scrolling="auto" noresize>
+		<frame src="${JForumContext.encodeURL("/jforum")}?module=admBase&amp;action=main" name="main">
+	</frameset>
+	<noframes>
+		<body>
+		</body>
+	</noframes>
+</html>
+

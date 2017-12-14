@@ -1,0 +1,125 @@
+<#include "header.htm"/>
+
+<#import "../macros/pagination.ftl" as topicPagination>
+<#import "../macros/search_pagination.ftl" as pagination>
+<#import "../macros/presentation.ftl" as presentation/>
+<script type="text/javascript">
+	<#include "js/pagination.js"/>
+</script>
+<style type="text/css">
+	.mainbox tbody td {
+		border-top:0px;
+		border-left:0px;
+		border-right:0px;
+	}
+	.mainbox tbody .gen {
+		border-bottom:#ddd 1px solid;
+	}
+</style>
+<div id="nav">		  
+	<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a>
+</div>	
+
+<div class="pages_btns" valign="center" style="align:right;">
+	<div class="pages">
+		<a class="next" href="${JForumContext.encodeURL("/forums/list")}">&lsaquo;&lsaquo;${I18n.getMessage("ForumListing.forumIndex")}</a>
+	</div>
+	<#assign paginationLinks>
+		<@pagination.searchPagination/>
+	</#assign>
+	${paginationLinks}
+</div>
+<div id="foruminfo">
+	<div class="mainbox formbox">
+		<h1>${I18n.getMessage("Search.searchResults")}</h1>
+		<table class="mainbox" cellspacing="2" cellpadding="5" width="100%" border="0">
+			<#if results.size() == 0>
+				<tr>
+					<td class="gen">
+						${I18n.getMessage("Search.noResults")} <a href="${JForumContext.encodeURL("/search/filters")}">${I18n.getMessage("Search.clickHere")}</a> ${I18n.getMessage("Search.newSearch")}
+					</td>
+				</tr>
+			<#else>
+				<tr>
+					<td colspan="5" class="gen">
+						<cite>
+							<font color="red">
+								<b>${totalRecords}</b>
+							</font>
+							<#if (totalRecords == 1)>
+								${I18n.getMessage("Search.recordFound")}
+							<#else>
+								${I18n.getMessage("Search.recordsFound")}
+							</#if>
+						</cite>.
+						<a href="${JForumContext.encodeURL("/search/filters")}">${I18n.getMessage("Search.clickHere")}</a> ${I18n.getMessage("Search.newSearch")}		
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2" style="background:#f5f5f5;margin-top:0"><span style="width:35px;">&nbsp;</span>${I18n.getMessage("ForumIndex.topics")}</td>
+					<td align="center" style="background:#f5f5f5;">${I18n.getMessage("Forums.Form.ForumName")}</td>
+					<td align="center" style="background:#f5f5f5;">${I18n.getMessage("Search.postedAt")}</td>
+					<td align="center" style="background:#f5f5f5;">${I18n.getMessage("ForumIndex.author")}</td>
+				</tr>
+				<#list results as post>
+					<tr>
+						<td class="folder" width="20px">
+							<img src="${contextPath}/templates/${templateName}/images/folder_common.gif" alt=""/>
+						</td>
+						<td>													
+							<#assign postUrl = JForumContext.encodeURL("/posts/preList/${post.topicId}/${post.id}")/>
+							<a href="${postUrl}" title="${I18n.getMessage("Search.viewMessage")}"><b>${post.subject?html}</b></a>
+						</td>
+						<td align="center">
+							<a href="${JForumContext.encodeURL("/forums/show/${post.forum.id}")}">${post.forum.name}</a>
+						</td>
+						<td align="center">${post.time?datetime}</td>
+						<td align="center">
+							<a href="${JForumContext.encodeURL("/user/profile/${post.userId}")}">${post.postUsername}</a>
+						</td>
+					</tr>
+				</#list>
+			</#if>
+		</table>
+	</div>
+</div>
+<div class="pages_btns" valign="center" style="align:right;">
+	<div class="pages">
+		<a class="next" href="${JForumContext.encodeURL("/forums/list")}">&lsaquo;&lsaquo;${I18n.getMessage("ForumListing.forumIndex")}</a>
+	</div>
+	<#assign paginationLinks><@pagination.searchPagination/></#assign>${paginationLinks}
+</div>
+<div id="nav">
+	<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a>
+</div>
+<DIV class=legend id=footfilter>
+	<DIV class=jump_sort>
+		<table cellspacing="0" cellpadding="0" width="100%" border="0">
+			<tr>
+				<td align="right">
+					<table cellspacing="0" cellpadding="0" border="0">
+						<tr>
+							<td nowrap="nowrap">
+								<form action="" accept-charset="${encoding}" name="f">
+									<span class="gensmall">${I18n.getMessage("ForumIndex.goTo")}:&nbsp;
+										<select onchange="if(this.options[this.selectedIndex].value != -1){ document.location = '${contextPath}/forums/show/'+ this.options[this.selectedIndex].value +'${extension}'; }" name="select">
+											<option value="-1" selected="selected">${I18n.getMessage("ForumIndex.goToSelectAForum")}</option>
+											<#list categories as category>
+												<optgroup label="${category.name}">
+													<#list category.getForums() as forum>
+													<option value="${forum.id}">${forum.name}</option>
+													</#list>
+												</optgroup>
+											</#list>
+										</select>				  
+									</span>
+								</form>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</DIV>
+</DIV>
+<#include "bottom.htm"/>

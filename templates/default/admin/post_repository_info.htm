@@ -1,0 +1,43 @@
+<#setting number_format = "#"/>
+
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
+<style type="text/css">
+	h1 {
+		font:12px/1.6em Helvetica, Arial, sans-serif; font-weight:bold; 
+	}
+	.mainbox tbody td {
+		 border-top:0px;
+	}
+	.mainbox tbody th {
+		border-bottom:#ddd 1px solid;
+		border-left:#ddd 1px solid;
+		border-right:#ddd 1px solid;
+		font:12px/1.6em Helvetica, Arial, sans-serif; font-weight:bold;
+		background-color:#dFdFdF;
+	}
+</style>
+<table class="mainbox" cellspacing="1" cellpadding="3" width="100%" border="0">
+	<tr>
+		<td align="center" class="thhead" valign="middle" colspan="7" height="25" style="padding-bottom:0px;padding-left:0px;padding-right:0px;padding-top:0px;"><h1>${I18n.getMessage("Cache.postsInfo")}</h1></td>
+	</tr>
+
+	<tr>
+		<td align="center" colspan="3" style="border-top:#ddd 1px solid; border-bottom:#ddd 1px solid;"><span class="gen"><font color="#ff0000"><b>${I18n.getMessage("Cache.danger")}</b></font></span></td>
+	</tr>
+
+	<tr>
+		<th align="left">${I18n.getMessage("Cache.topicTitle")}</th>
+		<th align="left">${I18n.getMessage("Cache.numberOfPosts")}</th>
+		<th align="left">${I18n.getMessage("Cache.action")}</th>
+	</tr>
+
+	<#list topics as t>
+		<tr>
+			<td class="row2"><a class="gen" href="${JForumContext.encodeURL("/posts/list/${t.get("id")}")}" target="_new">${t.get("title")}</a></td>
+			<td class="row2"><span class="gen">${repository.size(t.get("id"))}</span></td>
+			<td class="row2">
+				<a class="gen" href="${JForumContext.encodeURL("/jforum")}?module=adminCache&amp;action=postsClear&amp;topic_id=${t.get("id")}">${I18n.getMessage("Cache.clear")}</a>
+			</td>
+		</tr>
+	</#list>
+</table>

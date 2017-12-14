@@ -1,0 +1,72 @@
+<#include "header.htm"/>
+<#import "../macros/pagination.ftl" as pagination>
+<#import "../macros/presentation.ftl" as presentation/>
+
+<#assign breadCrumb>
+	<div id="nav">
+	<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a> &raquo;
+	<a id="latest3" class="nav" href="${JForumContext.encodeURL("/hottestTopics/list")}">${I18n.getMessage("ForumBase.hottestTopics")}</a>
+	</div>
+</#assign>
+
+${breadCrumb}
+<div id="foruminfo">
+	<div class="mainbox formbox"> 
+		<h1>${I18n.getMessage("ForumBase.hottestTopics")}</h1>
+		<table class="mainbox" cellspacing="1" cellpadding="4" width="100%" border="0">
+			<thead>
+				<tr>
+					<td>${I18n.getMessage("Forums.Form.ForumName")}</td>
+					<td colspan="2">${I18n.getMessage("ForumIndex.topics")}</td>
+					<td align="center">${I18n.getMessage("ForumIndex.answers")}/${I18n.getMessage("ForumIndex.views")}</td>
+					<td align="center">${I18n.getMessage("ForumIndex.author")}</td>
+					<td align="center">${I18n.getMessage("ForumIndex.lastMessage")}</td>
+				</tr>
+			</thead>
+		
+			<!-- TOPICS LISTING -->
+			<#list topics as topic>
+				<tr>
+					<td style="border-top:0px;" width="15%"><a class="postdetails" href="${JForumContext.encodeURL("/forums/show/${forums.get(topic_index).getId()}")}">${forums.get(topic_index).getName()}</a></td>
+					<td style="border-top:0px;"><@presentation.folderImage topic/></td>
+					<td width="50%" style="border-top:0px;">
+						<font style="color:red; font-size:1.1em;family:border">
+							<b>
+				    			<#if topic.type = 2>${I18n.getMessage("ForumListing.announce")}<#elseif topic.type = 1>${I18n.getMessage("ForumListing.stickyLabel")}</#if><#if (topic.voteId>0)>${I18n.getMessage("ForumListing.pollLabel")}</#if>
+			    			</b>
+			    		</font>
+						<a href="${JForumContext.encodeURL("/posts/list/${topic.id}")}">
+							${topic.title?html}
+						</a>
+			
+						<#if topic.paginate>
+							<span class="gensmall">
+								<@pagination.littlePostPagination topic.id, postsPerPage, topic.totalReplies/>				
+							</span>
+						</#if>		
+					</td>
+			
+					<td align="center" style="border-top:0px;" width="9%"><SPAN style="color:#090;">${topic.totalReplies}</SPAN> / <EM>${topic.totalViews}</EM></td>
+					<td align="center" style="border-top:0px;" width="7%">
+						<span class="name"><a href="${JForumContext.encodeURL("/user/profile/${topic.postedBy.id}")}">${topic.postedBy.msnm}</a></span>
+					</td>
+			
+					<td class="lastpost" align="center" style="border-top:0px;" width="15%">
+						<#if (topic.lastPostTime?length > 0)>
+							<#assign startPage = ""/>
+							<#if (topic.totalReplies + 1 > postsPerPage?number)>
+								<#assign startPage = ((topic.totalReplies / postsPerPage?number)?int * postsPerPage?number) +"/"/>
+							</#if>
+							<em><a href="${JForumContext.encodeURL("/posts/list/${startPage}${topic.id}")}#${topic.lastPostId}">${topic.lastPostTime}</a></em>
+							<br/>by <a href="${JForumContext.encodeURL("/user/profile/${topic.lastPostBy.id}")}">${topic.lastPostBy.msnm}</a>
+							</span>
+						</#if>		 
+					</td>
+				</tr>
+			</#list>		
+			<!-- END OF TOPICS LISTING -->
+		</table>  
+	</div>
+</div>
+${breadCrumb}
+<#include "bottom.htm"/>

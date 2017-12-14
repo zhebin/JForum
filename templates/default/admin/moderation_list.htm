@@ -1,0 +1,42 @@
+<#setting number_format = "#"/>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
+<style type="text/css">
+	h1 { font:12px/1.6em Helvetica, Arial, sans-serif; font-weight:bold; }
+</style>
+<table width="100%" align="center" cellpadding="4" cellspacing="1" border="0" class="mainbox">
+	<tr>
+		<th class="thhead" align="center" height="28" style="padding-bottom:0px;padding-left:0px;padding-right:0px;padding-top:0px;border-bottom:#ddd 1px solid;"><h1>${I18n.getMessage("Moderation.Admin.pendingListCategory")}</h1></td>
+	</tr>
+
+	<#if infoList.size() == 0>
+		<tr>
+			<td align="center" style="border-top:0px;">${I18n.getMessage("Moderation.Admin.noneToModerate")}</td>
+		</tr>
+	<#else>
+		<#list infoList.keySet() as key>
+			<tr>
+				<td class="row1" style="border-top:0px;">
+					<table width="100%" align="center" cellpadding="0" cellspacing="0" style="border:#ddd 1px solid;">
+						<tr>
+							<td class="catleft" bgcolor="#dFdFdF" width="20%">&nbsp;<span class="gen"><b>${I18n.getMessage("Admin.categories")}</b></span></td>
+							<td class="catleft" bgcolor="#dFdFdF">&nbsp;<span class="gen"><b>${I18n.getMessage("Moderation.Admin.forumName")}</b></span></td>
+							<td class="catleft" align="center" bgcolor="#dFdFdF" width="10%"><span class="gen"><b>${I18n.getMessage("Moderation.Admin.postsToModerate")}</b></span></td>
+							<td class="catleft" align="center" bgcolor="#dFdFdF" width="10%"><span class="gen"><b>${I18n.getMessage("Moderation.Admin.action")}</b></span></td>
+						</tr>
+
+						<#list infoList[key] as info>
+							<#list info.forums as f>
+								<tr>
+									<td><span class="gen">${info.categoryName}</span></td>
+									<td style="border-left:#ddd 1px solid;"><span class="gen">${f.forumName}</span></td>
+									<td align="center" style="border-left:#ddd 1px solid;"><span class="gen">${f.postsToModerate}</span></td>
+									<td align="center" style="border-left:#ddd 1px solid;"><a class="gen" href="${JForumContext.encodeURL("/adminModeration/view/${f.forumId}")}">${I18n.getMessage("Moderation.Admin.view")}</a></td>
+								</tr>
+							</#list>
+						</#list>
+					</table>
+				</td>
+			</tr>
+		</#list>
+	</#if>
+</table>

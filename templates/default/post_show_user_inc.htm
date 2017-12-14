@@ -1,0 +1,65 @@
+<dl class="profile">
+	<a href="${JForumContext.encodeURL("/user/profile/${user.id}")}">
+		<b>${user.msnm?html}</b>
+	</a>
+</dl>
+	<!--评分
+	<#if karmaEnabled && post.userId != 1>
+		<script type="text/javascript">writeStars(${user.karma.karmaPoints}, "${user.id}${post.id}");</script>
+		<br />
+	</#if>
+	-->
+<span class="user_profile" style="margin-top:5px;margin-left:10px;">
+	<#if (user.avatar?exists && user.avatar?length > 0)>
+		<#if user.isExternalAvatar() || user.avatar.startsWith("http://")>
+			<#if avatarAllowExternalUrl>
+				<a href="${JForumContext.encodeURL("/user/profile/${user.id}")}" class="user_profile">
+					<img src="${user.avatar?html}" border="0" />
+				</a>
+			</#if>
+		<#else>
+			<a href="${JForumContext.encodeURL("/user/profile/${user.id}")}">
+				<img src="${contextPath}/images/avatar/${user.avatar}" border="0" />
+			</a>
+		</#if>
+	<#else>
+		<a href="${JForumContext.encodeURL("/user/profile/${user.id}")}">
+			<img src="${contextPath}/images/avatar/noavatar.gif" border="0" />
+		</a>
+	</#if>
+</span>
+<#if post.userId != 1>
+	<dl class="profile">
+		<dt>${I18n.getMessage("Rank.List.rankName")}:</dt>
+		<dd><#if rank.getRankTitle(user.rankId, user.totalPosts).length() == 0>
+				&nbsp;
+			<#else>
+				${rank.getRankTitle(user.rankId, user.totalPosts)}
+			</#if>
+		</dd>
+	</dl>
+</#if>
+<#if post.userId != 1>
+	<dl class="profile">
+		<dt>${I18n.getMessage("PostShow.userTotalMessages")}:</dt>
+		<dd>${user.totalPosts}</dd>
+	</dl>
+</#if>
+<#if post.userId != 1>
+	<dl class="profile">
+		<dt>${I18n.getMessage("User.dept")}:</dt>
+		<dd>${user.icq?default("")?html}</dd>
+	</dl>
+</#if>
+<#if post.userId != 1>
+	<dl class="profile">
+		<dt>${I18n.getMessage("UserProfile.status")}:</dt>
+		<dd>
+			<#if user.isOnline()>
+				${I18n.getMessage("PostShow.userOnline")}
+			<#else>
+				${I18n.getMessage("PostShow.userOffline")}
+			</#if>
+		</dd>
+	</dl>
+</#if>

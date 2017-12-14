@@ -1,0 +1,171 @@
+<#include "header.htm"/>
+
+<script type="text/javascript">
+<!--
+<#include "js/utils.js"/>
+
+-->
+</script>
+ 
+<style type="text/css">
+	.mainbox tbody td {
+		border-top:0px;
+		border-left:0px;
+		border-bottom:0px;
+		border-right:0px;
+	}
+</style>
+
+<div id="nav">
+	<a class="forumlink" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a>&raquo;
+	<a class="nav" href="${JForumContext.encodeURL("/user/profile/${u.id}")}">${u.msnm}${I18n.getMessage("UserProfile.profileFor")}</a>
+</div>
+<div id="foruminfo">
+	<div class="mainbox topiclist">
+		<h1>${I18n.getMessage("UserProfile.profileFor")}</h1>
+		<table class="mainbox" cellspacing="1" cellpadding="3" width="100%" align="center" border="0">
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right" style="border-top:0px"><span class="gen">${I18n.getMessage("UserProfile.avatar")}:&nbsp;</span></td>
+				<td>
+					<#if (u.avatar?exists && u.avatar?length > 0)>
+						<#if u.isExternalAvatar() || u.avatar.startsWith("http://")>
+							<#if avatarAllowExternalUrl>
+								<img src="${u.avatar}" border="0">
+							</#if>
+						<#else>
+							<img src="${contextPath}/images/avatar/${u.avatar}" border="0" /><br />
+						</#if>
+					<#else>
+						<img src="${contextPath}/images/avatar/noavatar.gif" border="0" /><br />
+					</#if>
+				</td>
+			</tr>
+			
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right" width="45%"><span class="gen">${I18n.getMessage("User.username")}:&nbsp;</span></td>
+				<td>${u.username?html}</td>
+			</tr>
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("User.nickname")}:&nbsp;</span></td>
+				<td>${u.aim?default("")?html}</td>
+			</tr>
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("User.name")}:&nbsp;</span></td>
+				<td>${u.msnm?html}</td>
+			</tr>
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("User.dept")}:&nbsp;</span></td>
+				<td>${u.icq?html}</td>
+			</tr>
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.domainGroup")}:&nbsp;</span></td>
+				<td>${u.interests?default("")?html}</td>
+			</tr>
+			
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("PostShow.ranking")}:&nbsp;</span></td>
+				<td>${rank.getRankTitle(u.rankId, u.totalPosts)?default("")}</td>
+			</tr>
+			<!-- 评分 
+			<#if karmaEnabled>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("Karma.karma")}:&nbsp;</span></td>
+					<td><script type="text/javascript">writeStars(${u.karma.karmaPoints}, ${u.id});</script></td>
+				</tr>
+			</#if>
+			-->
+			<!-- 注册时间 
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.registrationDate")}:&nbsp;</span></td>
+					<td><b><span class="gen">${u.registrationDate}</span></b></td>
+				</tr>
+			-->
+			
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.totalMessages")}:&nbsp;</span></td>
+				<td valign="middle">
+					<#if (nposts > 0)>
+						<a  href="${JForumContext.encodeURL("/posts/listByUser/${u.id}")}">${I18n.getMessage("PostShow.userTotalPosts")}[${nposts}]</a>
+					<#else>
+						${I18n.getMessage("PostShow.noUserCreatedPosts")}
+					</#if>
+				</td>
+			</tr>
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("ForumListing.userCreatedTopics")}:</span></td>
+				<td valign="middle">
+					<#if (ntopics > 0)>
+						<a class="gen" href="${JForumContext.encodeURL("/recentTopics/showTopicsByUser/${u.id}")}">${I18n.getMessage("ForumListing.userTopics")?html}[${ntopics}]</a>
+					<#else>
+						${I18n.getMessage("ForumListing.noUserCreatedTopics")}
+					</#if>
+					</td>
+			</tr>
+			
+			<#if bookmarksEnabled>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("User.bookmarks")}:</span></td>
+					<td valign="middle">
+						<#if (nbookmarks > 0)>
+							<a class="gen" href="${JForumContext.encodeURL("/bookmarks/list/${u.id}")}"> ${u.msnm}${I18n.getMessage("Bookmarks.for")}[${nbookmarks}]</a>
+						<#else>
+							${I18n.getMessage("Bookmarks.empty")}
+						</#if>
+					</td>
+				</tr>
+			</#if> 
+			
+			<#if (u.biography?exists && u.biography?length > 0)>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.biography")}:</span></td>
+					<td valign="middle">${u.biography}</td>
+				</tr>
+			</#if>
+			
+			<#if (u.signature?exists && u.signature?length > 0)>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("User.signature")}:</span></td>
+					<td valign="middle">${u.signature}</td>
+				</tr>
+			</#if>
+			   
+			<tr>
+				<td class="catleft" align="left" height="28" colspan="2" 
+					style="border-top:#ddd 1px solid;border-bottom:#ddd 1px solid;
+					padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;height:30px;">
+						<h1 >${I18n.getMessage("UserProfile.contactFor")}
+					</h1>
+				</td>
+			</tr>
+
+			<#if u.id != 1>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("ForumBase.privateMessages")}:</span></td>
+					<td class="row1" valign="middle">
+						<span class="temp">
+							<a href="${JForumContext.encodeURL("/pm/sendTo/${u.id}")}" class="icon_pm">
+								<img src="${contextPath}/templates/${templateName}/images/sendsms.gif" style="width:16px;height:14px;"/>
+							</a>
+						</span>
+					</td>
+				</tr>
+			</#if>
+            
+			<tr>
+				<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.emailAddress")}:</span></td>
+				<td class="row1" valign="middle">
+					${u.email}
+				</td>
+			</tr>
+			
+			<#if (u.yim?exists && u.yim?length > 0)>
+				<tr>
+					<td valign="middle" nowrap="nowrap" align="right"><span class="gen">${I18n.getMessage("UserProfile.phoneNumber")}:</span></td>
+					<td class="row1" valign="middle">${u.yim}</td>
+				</tr>
+			</#if>
+
+		</table>
+	</div>
+</div>
+<#include "bottom.htm"/>

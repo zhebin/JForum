@@ -1,0 +1,39 @@
+<#setting number_format = "#"/>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
+<form accept-charset="${encoding}" name="form" action="${JForumContext.encodeURL("/jforum")}" method="post">
+<input type="hidden" name="action" value="delete" />
+<input type="hidden" name="module" value="${moduleName}" />
+
+<table class="mainbox" cellspacing="1" cellpadding="3" width="100%" border="0">
+	<tr>
+		<td colspan="5" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;" align="center">
+			<h1>${I18n.getMessage("Rank.List.Title")}</h1>
+		</td>
+	</tr>
+	<tr>
+		<td class="row2"><span class="gen"><b>${I18n.getMessage("Rank.List.rankName")}</b></span></td>
+		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.List.minPosts")}</b></span></td>
+		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Rank.Form.Special")}</b></span></td>
+		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Action")}</b></span></td>
+		<td class="row2" align="center"><span class="gen"><b>${I18n.getMessage("Delete")}</b></span></td>
+	</tr>
+
+	<#list ranks as rank>
+	<tr>
+		<td class="row1" width="30%"><span class=gen>${rank.title}</span></td>
+		<td width="20%" class="row1" align="center"><span class="gen">${rank.min}</span></td>
+		<td width="20%" class="row1" align="center"><span class="gen">${rank.special?string}</span></td>
+		<td width="20%" class="row1" align="center"><span class="gen"><a href="${JForumContext.encodeURL("/${moduleName}/edit/${rank.id}")}">${I18n.getMessage("Rank.List.Edit")}</a></span></td>
+		<td width="10%" class="row1" align="center"><input type="checkbox" name="rank_id" value="${rank.id}" /></td>
+	</tr>
+	</#list>
+
+	<tr align="center">
+		<td class="catbottom" colspan="5" height="28">
+		<input class="submit" type="button" value="${I18n.getMessage("Rank.List.ClickToNew")}" name="button" onclick="document.location = '${JForumContext.encodeURL("/${moduleName}/insert")}';" />
+		&nbsp;&nbsp; 
+		<input class="submit" type="submit" value="${I18n.getMessage("Rank.List.ClickToDelete")}" name="submit" /></td>
+	</tr>
+</table>
+</form>
+<#include "bottom.htm"/>

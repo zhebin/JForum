@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<#assign language = language?default("en_US")/>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<link rel="Shortcut Icon" href="${contextPath}/images/icos/bbs_ico.ico" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/home-sy.css?${startupTime} );</style>
+		<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/jquery.poshytip.js"></script>
+		<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/xpchTab.js"></script>
+		<script type="text/javascript" src="${contextPath}/templates/${templateName}/js/xpchSliding.js"></script>
+		<script type="text/javascript">
+			function insertInfo(title,url){
+				title = encodeURI(encodeURI(title, 'UTF-8'));
+				jQuery.ajax({
+		         url:'${contextPath}/insertInfo?uid=${session.username}&title='+title+'&url='+url,
+		         type:'post',
+		         dataType:'text',
+		         success:function(data){
+		         	if(data == 'true'){
+		         		alert('\u64cd\u4f5c\u6210\u529f!');
+		         	}else{
+		         		alert('\u64cd\u4f5c\u5931\u8d25!');
+		         	}
+		         }
+		      });
+			}
+			function openMore(url){
+			if(url!=''){
+				openWin('mdb',url);
+			}
+		}
+		</script>
+	</head>
+	<body class="${language}">
+		<div class="pt-list-scrollPane" id="scrollList01" style="height:${hottestPerPage?int*26+10}px;_height:${hottestPerPage?int*26+5}px;">
+			<div class="pt-list-div">
+				<#list topics as topic>
+					<#if topic_index % hottestPerPage == 0>
+						<table class="p-table">
+							<tbody>
+					</#if>
+								<tr>
+									<td>
+										<a class="liststyle01" href="${JForumContext.encodeURL("/posts/list/${topic.id}")}" target="_blank">
+											${topic.title?html}
+										</a>
+										<span>
+											[${topic.firstPostTime?substring(0,10)}]
+											<img src="${contextPath}/templates/${templateName}/images/fav.gif" 
+												title=${I18n.getMessage("ForumIndex.collect")} 
+												onclick="insertInfo('${topic.title?html}','${JForumContext.encodeURL("/posts/list/${topic.id}")}');"
+												style="cursor:pointer; margin-left:5px" />
+										</span>
+									</td>
+								</tr>
+					<#if (topic_index+1) % hottestPerPage == 0 || (topic_index+1) == topics.size()>
+							</tbody>
+						</table>
+					</#if>
+				</#list>
+			</div>
+		</div>
+		<div class="morePane">
+			<a class="p-p-t-scroll-down" href="javascript:void(0);" onclick="_scrollList01.showNextPanel(true)" onfocus=""></a>
+			<a class="p-p-t-scroll-up" href="javascript:void(0);" onclick="_scrollList01.showPreviousPanel(true)"></a>
+            <span class="p-p-linebar" href="javascript:void(0);"></span>
+            <a class="p-p-more" href="${JForumContext.encodeURL("${hottestLink}")}" title="${I18n.getMessage("Hottest.list.more")}" target="_blank"></a>
+		</div>
+		<script>
+			var _scrollList01 = new XPCH.Sliding("scrollList01",{
+				autoPlay : false,
+				loopable : false,
+				scrollCellCount : 1,
+				duration : 800,
+				lastReturnStart : true
+			});
+		</script>
+	</body>
+</html>

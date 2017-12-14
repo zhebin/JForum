@@ -1,0 +1,107 @@
+<#include "header.htm"/>
+<#import "../macros/presentation.ftl" as presentation/>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="${contextPath}/rss/forums${extension}" />
+<div id="foruminfo">
+	<#list allCategories as category>
+		<DIV class="mainbox forumlist">
+			<SPAN class=headactions>
+				<IMG id="section_${category.id}_img" title="${I18n.getMessage("close")}" 
+						onClick="toggle_collapse('section_${category.id}');"
+						alt="close" src="${contextPath}/templates/${templateName}/images/collapsed_no.gif">
+			</SPAN>
+			<H3><a>${category.name}</a></H3>
+			<TABLE id="section_${category.id}" cellSpacing="0" cellPadding="0">
+				<TBODY>
+				  	<TR>
+					  	<TD valign="middle" align="center" width="5%">&nbsp;</TD>
+					    <TD>${I18n.getMessage("ForumListing.forums")}</TD>
+					    <TD class="nums">${I18n.getMessage("ForumIndex.forumAdmins")}</TD>
+					    <TD class="nums">${I18n.getMessage("ForumListing.totalTopicsToday")}</TD>
+					    <TD class="nums">${I18n.getMessage("ForumListing.totalTopics")}</TD>
+					    <TD class="nums">${I18n.getMessage("ForumListing.totalMessages")}</TD>
+					    <TD align="center" width="15%">${I18n.getMessage("ForumListing.lastMessage")}</TD>
+				    </TR>
+					<#if (category.getForums().size()==0)>
+						<TR>
+							<TD valign="middle" align="center" width="5%">&nbsp;</TD>
+					  		<TD colspan="6">${I18n.getMessage("ForumIndex.withoutBroad")}</TD>
+					  	</TR>
+					</#if>
+					<#list category.getForums() as forum>
+						<#assign lpi = forumRepository.getLastPostInfo(forum.id)/>
+						<TR>
+							<td align="center" class="temp">
+								<A href="${JForumContext.encodeURL("/forums/show/${forum.id}")}" target=_blank>
+									<#if forum.unread>
+										<img src="${contextPath}/templates/${templateName}/images/forum_new.gif" alt="${I18n.getMessage("ForumIndex.newMessages")}" />
+									<#else>
+										<img src="${contextPath}/templates/${templateName}/images/forum.gif" alt="${I18n.getMessage("ForumIndex.noNewMessages")}" />
+									</#if>
+								</A>
+							</td>
+							<td align="left">
+								<b><a class="forumlink" href="${JForumContext.encodeURL("/forums/show/${forum.id}")}">${forum.name?html}</a></b>
+								<br/>${forum.description?default("")}
+							</td>
+							<TD class="nums">
+								<span class="gensmall">
+									<#if forum.isModerated()>
+										<#assign moderators = forumRepository.getModeratorList(forum.id)/>
+										<#if moderators.size() <= 0>
+											${I18n.getMessage("ForumIndex.noModerators")}
+										<#else>
+											<#list moderators as m>
+												<a href="${JForumContext.encodeURL("/user/profile/${m.id}")}")}">${m.name?html}<br /></a>
+											</#list>
+										</#if>
+									<#else>
+										${I18n.getMessage("ForumIndex.noModerators")}
+									</#if>
+								</span>
+							</TD>
+							<TD class="nums">
+								${forumRepository.getTodayTotal(forum.id)}
+							</TD>
+							<TD class="nums">
+								${forum.totalTopics}
+							</TD>
+							<TD class="nums">
+								${forumRepository.getTotalPosts(forum.id)}
+							</TD> 
+							<TD class=lastpost align="center">
+								<#if (lpi.postTimeMillis > 0)>
+									${lpi.postDate}<br />
+									<#if (lpi.userId > 0)>
+										<a href="${JForumContext.encodeURL("/user/profile/${lpi.userId}")}">${lpi.username}</a> 
+									</#if>
+									<#assign startPage = ""/>
+									<#if (lpi.topicReplies + 1 > topicsPerPage)>
+										<#assign startPage = ((lpi.topicReplies / topicsPerPage)?int * topicsPerPage) +"/"/>
+									</#if>
+									<#assign url = JForumContext.encodeURL("/posts/list/${startPage}${lpi.topicId}") + "#" + lpi.postId/>
+									<span class="temp">
+										<a href="${url}">
+											<img src="${contextPath}/templates/${templateName}/images/icon_latest_reply.gif" border="0" alt="${I18n.getMessage("ForumListing.lastestReply")}" />
+										</a>
+									</span>
+								<#else>
+									${I18n.getMessage("ForumListing.noMessages")}
+								</#if>	
+							</TD>
+						</TR>
+						</TBODY>
+					</#list>
+				</TABLE>
+			</DIV>
+		</#list>
+		<div class="legend" id="footfilter" style="valign:center">
+			<div align="left" style="valign:center">
+				<label><img alt="${I18n.getMessage("ForumListing.newMessages")}" src="${contextPath}/templates/${templateName}/images/forum_new.gif" align="absmiddle">${I18n.getMessage("ForumListing.newMessages")}</label>
+				<label><img alt="${I18n.getMessage("ForumListing.noNewMessages")}" src="${contextPath}/templates/${templateName}/images/forum.gif" align="absmiddle">${I18n.getMessage("ForumListing.noNewMessages")}</label>
+			</div>
+			<div class="jump_sort" style="valign:center">
+					<@presentation.forumsComboTable/>
+			</div> 
+		</div>
+		
+	<#include "bottom.htm"/>	

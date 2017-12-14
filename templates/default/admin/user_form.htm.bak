@@ -1,0 +1,305 @@
+<#setting number_format = "#"/>
+<#setting datetime_format = dateTimeFormat/>
+<#assign logged = logged?default(false)/>
+<#assign language = language?default("en_US")/>
+<#assign hasCodeBlock = hasCodeBlock?default(false)/>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
+<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/${language}.css?${startupTime} );</style>
+<SCRIPT src="${contextPath}/templates/${templateName}/js/common.js" type=text/javascript></SCRIPT>
+<SCRIPT src="${contextPath}/templates/${templateName}/js/ajax.js" type=text/javascript></SCRIPT>
+<#if hasCodeBlock>
+	<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/SyntaxHighlighter.css?${startupTime} );</style>
+</#if>
+<script>
+	function validateForm()
+	{
+		var f = document.post;
+		if(validateValue(f.username.value) || validateValue(f.msn.value) || validateValue(f.icq.value) || validateValue(f.email.value)){
+			alert("${I18n.getMessage("messageneedinsert")}");
+			return false;
+		}
+		return true;
+	}
+	function validateValue(value) {
+		var result = (value == "" || value == null);
+		return result
+	}
+</script>
+<style>
+	.mainbox td{
+		border-bottom:0px;
+	}
+	.mainbox tbody td{
+		border-top:0px;
+	}
+	.mainbox tbody .thsides {
+		border-bottom:#ddd 1px solid;
+		border-top:#ddd 1px solid;
+	}
+</style>
+<#assign admin = admin?default(false)/>
+<form action="${JForumContext.encodeURL("/jforum")}" method="post" enctype="multipart/form-data" name="post" id="post" accept-charset="${encoding}" onsubmit="return validateForm();" onload="">
+	<input type="hidden" name="action" value="${action}" />
+	<input type="hidden" name="module" value="${moduleName}" />
+	<input type="hidden" name="user_id" value="${u.id}" />
+	<div id="foruminfo">
+		<div class="mainbox formbox" style="border-top:0px;border-left:0px;border-bottom:0px;border-right:0px;">
+			<table class="mainbox" cellspacing="1" cellpadding="3" width="100%" border="0">
+				<tr>
+					<td colspan="2" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;border-top:#ddd 1px solid;border-bottom:#ddd 1px solid;">
+						<h1 align="left">${I18n.getMessage("User.registerInformation")} - <font color="red"> ${I18n.getMessage("Userinfo.Admin.InsertHelp")}</font></h1>
+					</td>
+				</tr>
+				<#assign message = ""/>
+				<#if editDone?default(false)>
+					<#assign message = I18n.getMessage("User.editDone")/>
+				<#elseif warns?exists>
+					<#list warns as w>
+						<#assign message = message + w + "<br />"/>
+					</#list>
+				</#if>
+	
+				<#if (message?length > 0)>
+					<tr>
+						<td class="row2" align="center" colspan="2">
+							<span class="gens">
+								<b><font color="<#if warns?exists>red<#else>green</#if>">${message}</font></b>
+							</span>
+						</td>
+					</tr>
+				</#if>
+			
+				<tr>
+					<td class="row1" width="50%" align="right"><span class="gen">${I18n.getMessage("User.username")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 200px" maxlength="255" name="username" value="${u.username?html}" /> 
+						</span>
+						<font color="red">&nbsp;&nbsp;*</font>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.name")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 200px" maxlength="255" name="msn" value="${u.msnm?default("")?html}" /> 
+						</span>
+						<font color="red">&nbsp;&nbsp;*</font>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.sex")}:</span></td>
+					<td class="row2">
+						<input type="radio" value="1" <#if u.isBbCodeEnabled()>checked="checked"</#if> name="allowbbcode" /> 
+						<span class="gen">${I18n.getMessage("man")}&nbsp;&nbsp; 
+						<input type="radio" <#if !u.isBbCodeEnabled()>checked="checked"</#if> value="0" name="allowbbcode" /> 
+						<span class="gen">${I18n.getMessage("woman")}</span>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.dept")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 300px" maxlength="15" size="10" name="icq" value="${u.icq?default("")?html}" />
+						</span>
+						<font color="red">&nbsp;&nbsp;*</font>
+					</td>
+				</tr>
+				<!--
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("UserProfile.domainGroup")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 300px" maxlength="15" size="10" name="interests" value="${u.interests?default("")?html}" />
+						</span>
+					</td>
+				</tr>-->
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.emailAddress")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 300px" maxlength="255" size="25" name="email" value="${u.email?default("")?html}" />
+						</span>
+						<!--<font color="red">&nbsp;&nbsp;*</font>-->
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("UserProfile.phoneNumber")}:</span></td>
+					<td class="row2">
+						<span class="gen">
+							<input type="text" style="WIDTH: 300px" maxlength="15" size="10" name="yim" value="${u.yim?default("")?html}" />
+						</span>
+					</td>
+				</tr>
+	<!--
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.specialRanking")}:</span></td>
+					<td class="row2">
+						<select name="rank_special">
+							<option value="-1">${I18n.getMessage("User.noSpecialRanking")}</option>
+							<#list specialRanks as rank>
+								<option value="${rank.id}" <#if rank.id == u.rankId>selected</#if>>${rank.title}</option>
+							</#list>
+						</select>
+					</td>
+				</tr>
+			-->	
+				<tr>
+					<td class="thsides" valign="middle" colspan="3" height="25" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;border-top:#ddd 1px solid;border-bottom:#ddd 1px solid;">
+						<h1>${I18n.getMessage("User.preferencesInfo")} - <font color="red">${I18n.getMessage("User.Admin.infoWillBePublicVisible")}</font></h1>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.nickname")}:</span></td>
+					<td class="row2">
+						<#if u.id == session.userId>
+							<input type="text" class="post" style="WIDTH: 200px;" maxlength="255" name="aim" value="${u.aim?default("")?html}" />
+						<#else>
+							<input readonly="readonly" type="text" class="post" style="WIDTH: 200px;background:#ECE9D8;" maxlength="255" name="aim" value="${u.aim?default("")?html}" />
+						</#if>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right">
+						<span class="gen">${I18n.getMessage("User.biography")}:</span><br />
+					</td>
+					<td class="row2">
+						<#if u.id == session.userId>
+							<textarea class="post" style="WIDTH: 300px;" name="biography" rows="8" cols="30">${u.biography?default("")}</textarea>
+						<#else>
+							<textarea readonly="readonly" class="post" style="WIDTH: 300px;background:#ECE9D8;" name="biography" rows="8" cols="30">${u.biography?default("")}</textarea>
+						</#if>
+					</td>
+				</tr>
+				<tr>
+					<td class="row1" align="right">
+						<span class="gen">${I18n.getMessage("User.signature")}:</span><br />
+					</td>
+					<td class="row2">
+						<span class="gensmall">${I18n.getMessage("User.signatureDef")}</span><br />
+						<#if u.id == session.userId>
+							<textarea class="post" style="WIDTH: 300px;" name="signature" rows="8" cols="30">${u.signature?default("")}</textarea>
+						<#else>
+							<textarea readonly="readonly" class="post" style="WIDTH: 300px;background:#ECE9D8;" name="signature" rows="8" cols="30">${u.signature?default("")}</textarea>
+						</#if>
+					</td>
+				</tr>
+				
+				<tr style="display:none">
+					<td class="row1" align="right">
+						<input type="hidden" value="0" name="viewemail" /> 
+						<input type="hidden" value="0" name="hideonline" /> 
+						<input type="hidden" value="0" name="notifyreply" /> 
+						<input type="hidden" value="0" name="notify_always" /> 
+						<input type="hidden" value="0" name="notify_text" /> 
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.alwaysAttachSignature")}:</span></td>
+					<td class="row2">
+						<#if u.id == session.userId>
+							<input type="radio" <#if u.attachSignatureEnabled>checked="checked"</#if> value="1" name="attachsig" /> 
+							<span class="gen">${I18n.getMessage("User.yes")}</span>&nbsp;&nbsp; 
+							<input type="radio" value="0" <#if u.attachSignatureEnabled == false>checked="checked"</#if> name="attachsig" /> 
+							<span class="gen">${I18n.getMessage("User.no")}</span>
+						<#else>
+							<input type="radio" disabled="disabled" value="1" <#if u.attachSignatureEnabled>checked="checked"</#if> name="attachsig" /> 
+							<span class="gen">${I18n.getMessage("User.yes")}</span>&nbsp;&nbsp; 
+							<input type="radio" disabled="disabled" value="0" <#if u.attachSignatureEnabled == false>checked="checked"</#if> name="attachsig" /> 
+							<span class="gen">${I18n.getMessage("User.no")}</span>
+						</#if>
+					</td>
+					<input type="hidden" class="post" style="WIDTH: 300px" maxlength="150" size="35" name="allowhtml" value="0"/>
+					<input type="hidden" class="post" style="WIDTH: 300px" maxlength="150" size="35" name="notifypm" value="0"/>
+				</tr>
+	
+				<tr>
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.allowSmilies")}:</span></td>
+					<td class="row2">
+						<#if u.id == session.userId>
+							<input type="radio" value="1" <#if u.isSmiliesEnabled()>checked="checked"</#if> name="allowsmilies" /> 
+							<span class="gen">${I18n.getMessage("User.yes")}</span>&nbsp;&nbsp; 
+							<input type="radio" <#if !u.isSmiliesEnabled()>checked="checked"</#if> value="0" name="allowsmilies" /> 
+							<span class="gen">${I18n.getMessage("User.no")}</span>
+						<#else>
+							<input type="radio" disabled="disabled" value="1" <#if u.isSmiliesEnabled()>checked="checked"</#if> name="allowsmilies" /> 
+							<span class="gen">${I18n.getMessage("User.yes")}</span>&nbsp;&nbsp; 
+							<input type="radio" disabled="disabled" <#if !u.isSmiliesEnabled()>checked="checked"</#if> value="0" name="allowsmilies" /> 
+							<span class="gen">${I18n.getMessage("User.no")}</span>
+						</#if>
+					</td>
+				</tr>
+			
+				<tr style="display:none">
+					<td class="row1" align="right"><span class="gen">${I18n.getMessage("User.langPreference")}:</span></td>
+					<td class="row2">
+						<select name="language">
+							<option value="" <#if u.lang?default("") == "">selected="selected"</#if>>${I18n.getMessage("User.Lang.default")}</option>
+						</select>
+					</td>
+				</tr>
+	
+				<tr>
+					<td class="thsides" valign="middle" colspan="2" height="12" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;border-top:#ddd 1px solid;border-bottom:#ddd 1px solid;"><h1>${I18n.getMessage("User.avatarControlPanel")}</h1></td>
+				</tr>
+				
+				<tr>
+					<td class="row1" align="right">
+						<span class="gen">${I18n.getMessage("User.currentAvatar")}:</span><br />
+					</td>
+					<td class="row2">
+						<#if (u.avatar?exists && u.avatar?length > 0)>
+							<#if u.isExternalAvatar()>
+								<img src="${u.avatar?html}" />
+							<#else>
+								<img src="${contextPath}/images/avatar/${u.avatar}" /><br />
+							</#if>
+								<#if u.id == session.userId>
+									<input type="checkbox" name="avatardel"/>&nbsp;
+								<#else>
+									<input type="checkbox" name="avatardel" disabled="disabled"/>&nbsp;
+								</#if>
+							<span class="gensmall">${I18n.getMessage("User.removeAvatar")}</span>
+						<#else>
+							<img src="${contextPath}/images/avatar/noavatar.gif" /><br />
+						</#if>
+					</td>
+				</tr>
+								
+				<tr>
+					<td class="row1" align="right">
+						<br />
+						<span class="gen">${I18n.getMessage("User.avatarFromPc")}:</span><br />
+						<br />
+					</td>
+					<td class="row2">
+						<span class="gensmall">${I18n.getMessage("User.avatarDesc")}</span><br />
+						<#if u.id == session.userId>
+						<input style="WIDTH: 200px;" type="file" name="avatar"/>
+						<#else>
+						<input style="WIDTH: 200px;" type="file" name="avatar" disabled="disabled"/>
+						</#if>
+					</td>
+				</tr>
+				
+				<tr>
+					<td class="catbottom" align="center" colspan="2" height="28">
+						<input class="submit" type="submit" value="${I18n.getMessage("User.submit")}" name="submit" />&nbsp;&nbsp;
+						<input class="submit" type="reset" value="${I18n.getMessage("User.reset")}" name="reset" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+</form>
+<#if hasCodeBlock>
+	<#include "highlighter_js.htm"/>
+</#if>

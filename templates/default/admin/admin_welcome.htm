@@ -1,0 +1,78 @@
+<html>
+	<head>
+		<link rel="Shortcut Icon" href="${contextPath}/images/icos/bbs_ico.ico" />
+		<meta http-equiv="Content-Type" content="text/html; charset=${encoding};"  />
+		<style type="text/css">@import url( ${contextPath}/templates/${templateName}/styles/style.css?${startupTime} );</style>
+		<style type="text/css">
+			h1 { font-size: 12/1.6em; font-family: arial, verdana; }
+			p, td { font-size: 12px; text-align:center;}
+			.thcornerl, .thtop, .thcornerr {font: 12px; font-family: arial, verdana;}
+		</style>
+	</head>
+	<body bgcolor="#E5E5E5" text="#000000">
+		<div class="mainbox" width="80%" style="border-top:0px;border-left:0px;border-bottom:0px;border-right:0px;">
+			<table width="80%" cellpadding="4" cellspacing="1" border="0" class="mainbox">
+				<tr>
+					<td colspan="4" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;border-top:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;">
+						<h1>${I18n.getMessage("ForumListing.stats")}</h1>
+					</td>
+				</tr>
+				<tr>
+					<th width="25%" nowrap="nowrap" height="25" class="thcornerl" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.statistic")}</b></th>
+					<th width="25%" height="25" class="thtop" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.value")}</b></th>
+					<th width="25%" nowrap="nowrap" height="25" class="thtop" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.statistic")}</b></th>
+					<th width="25%" height="25" class="thcornerr" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.value")}</b></th>
+				</tr>
+				<tr>
+					<td class="row1" nowrap="nowrap">${I18n.getMessage("Admin.welcome.numPosts")}</td>
+					<td class="row1"><b>${stats.posts}</b></td>
+					<td class="row1" nowrap="nowrap">${I18n.getMessage("Admin.welcome.postsPerDay")}</td>
+					<td class="row2"><b>${stats.postsPerDay}</b></td>
+				</tr>
+				<tr>
+					<td class="row2" nowrap="nowrap">${I18n.getMessage("Admin.welcome.numTopics")}</td>
+					<td class="row2"><b>${stats.topics}</b></td>
+					<td class="row2" nowrap="nowrap">${I18n.getMessage("Admin.welcome.topicsPerDay")}</td>
+					<td class="row2"><b>${stats.topicsPerDay}</b></td>
+				</tr>
+				<tr>
+					<td class="row1" nowrap="nowrap">${I18n.getMessage("Admin.welcome.numUsers")}</td>
+					<td class="row1"><b>${stats.users}</b></td>
+					<td class="row1" nowrap="nowrap">${I18n.getMessage("Admin.welcome.usersPerDay")}</td>
+					<td class="row1"><b>${stats.usersPerDay}</b></td>
+				</tr>
+			</table>
+			
+			<div <#if (sessions.size() > 10)>style="overflow: auto; width: 100%; height: 280px;"</#if>>
+				<br>
+				<table width="80%" cellpadding="4" cellspacing="1" border="0" class="mainbox">
+					<tr>
+						<td colspan="4" style="padding-top:0px;padding-left:0px;padding-bottom:0px;padding-right:0px;border-top:#ddd 1px solid;border-left:#ddd 1px solid;border-right:#ddd 1px solid;"><h1>${I18n.getMessage("ForumListing.whoIsOnline")}</h1></td>
+					</tr>
+					<tr>
+						<th width="25%" class="thcornerl" height="25" bgcolor="#dFdFdF"><b>${I18n.getMessage("Login.user")}</b></th>
+						<th width="25%" height="25" class="thtop" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.logIn")}</b></th>
+						<th width="25%" class="thtop" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.lastUpdated")}</b></th>
+						<th width="25%" height="25" class="thcornerr" bgcolor="#dFdFdF"><b>${I18n.getMessage("Admin.welcome.ipAddress")}</b></th>
+					</tr>
+					<#assign row = "row2"/>
+					<#list sessions as s>
+						<#if !s.isBot() && s.userId != anonymous_id?number>
+							<#if row == "row2">
+								<#assign row = "row1"/>
+							<#else>
+								<#assign row = "row2"/>
+							</#if>
+							<tr>
+								<td width="20%" class="${row}">&nbsp;<span class="gen"><a href="${JForumContext.encodeURL("/jforum")}?module=adminUsers&amp;action=edit&amp;id=${s.userId}" class="gen">${s.name}</a></span>&nbsp;</td>
+								<td width="20%" align="center" class="${row}">&nbsp;<span class="gen">${s.startTime?time}</span>&nbsp;</td>
+								<td width="20%" align="center" nowrap="nowrap" class="${row}">&nbsp;<span class="gen">${s.sessionLastUpdate()?time}</span>&nbsp;</td>
+								<td width="20%" class="${row}">&nbsp;<span class="gen">${s.ip?default("Unknown")}</span>&nbsp;</td>
+							</tr>
+						</#if>
+					</#list>
+				
+				</table>
+			</div>
+		</div>
+<#include "bottom.htm"/>

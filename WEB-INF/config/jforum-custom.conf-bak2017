@@ -1,0 +1,26 @@
+#Installation specific configuration options
+#Thu Feb 09 09:35:03 CST 2017
+dao.driver=net.jforum.dao.oracle.OracleDataAccessDriver
+database.connection.dbname=orcl
+database.connection.driver=oracle.jdbc.OracleDriver
+database.connection.host=192.168.1.123
+database.connection.implementation=net.jforum.PooledConnection
+database.connection.password=jforum
+database.connection.pool.max=50
+database.connection.pool.min=5
+database.connection.pool.timeout=120
+database.connection.port=1521
+database.connection.string=${database.connection.string_thin}
+database.connection.string_local=jdbc\:oracle\:oci\:${database.connection.username}/${database.connection.password}@${database.connection.dbname}
+database.connection.string_thin=jdbc\:oracle\:thin\:${database.connection.username}/${database.connection.password}@${database.connection.host}\:${database.connection.port}\:${database.connection.dbname}
+database.connection.username=jforum
+database.driver.name=oracle
+database.support.autokeys=false
+database.support.subqueries=true
+dbencoding=utf-8
+forum.link=http\://192.168.1.123\:8080/JForum/
+homepage.link=http\://192.168.1.123\:8080
+i18n.board.default=zh_CN
+installed=true
+search.indexing.enabled=true
+user.hash.sequence=384139fc0b3b602d838376c6cc8c25f4

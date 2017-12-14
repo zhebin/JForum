@@ -1,0 +1,503 @@
+<#include "header.htm"/>
+
+<style>
+<!--
+
+#leftTd{
+	border-right:1px solid #dddddd;
+	width:20%;
+}
+.main{
+	/* padding:10px; */
+}
+.head{
+	width:100%;
+}
+.head span{
+	text-align:center;
+	width:100%;
+	display:inline-block;
+	padding-top:10px;
+	padding-bottom:10px;
+	border:1px solid #dddddd;
+	border-top:none!important;
+}
+.head span a{
+	color:#337ab7!important;
+}
+.head .on{
+	border-top:1px solid #dddddd!important;
+	border-bottom:none!important;
+}
+.head .on a{
+	color:#333333!important;
+}
+#mycommon{
+	margin-right:-4px;
+}
+.commonBody,.personBody{
+	padding:20px;
+}
+.users .user{
+	padding:2px;
+}
+.search{
+	padding-top:10px;
+	padding-bottom:10px;
+}
+.displayNone{
+	display:none;
+}
+.copyTo{
+	color:#666;
+}
+.groupArea{
+	padding-top:10px;
+}
+.groupName input{
+	vertical-align: middle;
+}
+.ztree li span.button.add {
+    margin-left: 2px;
+    margin-right: -1px;
+    background-position: -144px 0;
+    vertical-align: top;
+}
+-->
+</style>
+
+<link rel="stylesheet" href="${contextPath}/templates/default/js/jquery-ztree/3.5.12/css/zTreeStyle/zTreeStyle.min.css" type="text/css">
+<script type="text/javascript" src="${contextPath}/templates/default/js/layer-v2.3/layer/jquery-1.10.1.js"></script>
+<script type="text/javascript" src="${contextPath}/templates/default/js/jquery-ztree/3.5.12/js/jquery.ztree.all-3.5.js"></script>
+<script type="text/javascript" src="${contextPath}/templates/default/js/layer-v2.3/layer/layer.js"></script>
+<table style="width:100%">
+<tr>
+<td valign="top" id="leftTd">
+	<div class="main">
+		<div class="head">
+			<!-- <span onclick="tocommon()" id="mycommon"><a href="javascript:void(0)">公共通讯录</a></span> -->
+			<span id="myperson"><a href="javascript:void(0)">通讯录</a></span>
+		</div>
+		<div class="personBody">
+			<div class="buttonArea">
+				<span><button onclick="addGroup()">添加分组</button></span>
+				<span><button onclick="editGroup()">编辑分组</button></span>
+				<span><button onclick="delGroup()">删除分组</button></span>
+			</div>
+			<div class="groupArea">
+				<ul id="groupTree" class="ztree"></ul>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var zTreeObj;
+			var setting = {
+				view: {  
+			        addHoverDom: addHoverDom, //当鼠标移动到节点上时，显示用户自定义控件  
+			        removeHoverDom: removeHoverDom, //离开节点时的操作  
+			    }, 
+				 check: {
+					enable: true,
+					chkStyle: "checkbox",
+					chkboxType:  { "Y" : "", "N" : "" },
+					nocheckInherit: true
+				},
+				edit:{
+	    			enable:true,
+	    			showRenameBtn:false,
+	    			showRemoveBtn:showRemoveBtn,
+	    			removeTitle:'删除'
+	    		},
+	    		callback: {
+	    			beforeRemove: delUserFromGroup,
+	    			onDblClick: zTreeOnDblClick
+	    		}
+			};
+		    var zNodes = [];
+	    	<#list groupList as group>
+	    	  var temp = {
+	    		name:'${group.groupName}',
+	    		id:'${group.groupId}',
+	    		open:true,
+	    		noRemoveBtn:true,
+	    		noEditBtn:true
+	    	  };
+	    	  var children = [];
+	    	  <#list group.list as user>
+	    	  	var temp1 = {
+	    	  			id:'${user.id}',
+			    		name:'${user.msnm}',
+			    		nocheck: true
+			    	  };
+	    	  	children.push(temp1);
+	    	  </#list>
+	    	  temp['children'] = children;
+	    	  zNodes.push(temp);
+		   </#list> 
+		   
+		   
+		   var zTreeObj1;
+			var setting1 = {
+				 check: {
+					enable: true,
+					chkStyle: "checkbox",
+					chkboxType:  { "Y" : "", "N" : "" },
+					nocheckInherit: true
+				}
+			};
+		    var zNodes1 = [];
+	    	<#list allUser as user>
+	    	  var temp2 = {
+	    		name:'${user.msnm}',
+	    		id:'${user.id}'
+	    	  };
+	    	  zNodes1.push(temp2);
+		   </#list> 
+			$(document).ready(function(){
+		       zTreeObj = $.fn.zTree.init($("#groupTree"), setting, zNodes);
+		       zTreeObj1 = $.fn.zTree.init($("#userTree"), setting1, zNodes1);
+		    });
+			//是否显示删除按钮
+			function showRemoveBtn(treeId, treeNode){
+				//获取节点所配置的noRemoveBtn属性值
+				if(treeNode.noRemoveBtn != undefined && treeNode.noRemoveBtn){
+					return false;
+				} else {
+					return true;
+				}
+			}
+			
+			function zTreeOnDblClick(event, treeId, treeNode) {
+				if(treeNode.level==0){
+					return;
+				}
+			    window.location.href='${contextPath}/pm/send.page?id='+treeNode.id;
+			};
+			
+			function addHoverDom(treeId, treeNode) { 
+				if(treeNode.level!=0){
+					return;
+				}
+			    var sObj = $("#" + treeNode.tId + "_span"); //获取节点信息  
+			    if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0) return;  
+			    var addStr = "<span class='button add' id='addBtn_" + treeNode.tId + "' title='添加用户' onfocus='this.blur();'></span>"; //定义添加按钮  
+			    sObj.after(addStr); //加载添加按钮  
+			    var btn = $("#addBtn_"+treeNode.tId);  
+			  
+			    //绑定添加事件，并定义添加操作  
+			    btn.bind("click", function(){  
+			        var zTree = zTreeObj;  
+			        layer.open({
+		        	  type: 1,
+		        	  title:'分组【'+treeNode.name+'】选人',
+		        	  area:['300px','500px'],
+		        	  content: $('#layer'), //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+		        	  btn: ['确认', '取消']
+			          ,yes: function(index, layero){
+			        	  addToGroup(treeNode.id,treeNode,index);
+			          },btn2: function(index, layero){
+			        	    //按钮【按钮二】的回调
+			        	    //return false 开启该代码可禁止点击该按钮关闭
+			        	  }
+		        	});
+			    });  
+			};
+			
+			function removeHoverDom(treeId, treeNode) {  
+			    $("#addBtn_"+treeNode.tId).unbind().remove();  
+			};  
+			
+			function delUserFromGroup(treeId, treeNode) {
+				var flag = false;
+				layer.confirm("确认从该组删除这个用户吗？", {icon: 3, title:'提示'}, function(index){
+					$.ajax({
+						url:'${contextPath}/ajax/delFromGroup.page',
+						type:'POST',
+						async:false,
+						data:{
+							module:'ajax',
+							action:'delFromGroup',
+							userId:treeNode.id,
+							groupId:treeNode.getParentNode().id,
+						},
+						success:function(data){
+							if(data=='success'){
+								flag = true;
+								zTreeObj.removeNode(treeNode);
+								layer.msg('删除成功！');
+							} else{
+								flag = false;
+								layer.msg('删除失败，请重试！');
+							}
+						}
+					})
+					  layer.close(index);
+					});   
+				return flag;
+			}
+		
+				function addGroup(){
+					layer.prompt({
+						title: '请输入分组名称'
+					},function(value, index, elem){
+						if(value!=''){
+							$.ajax({
+								url:'${contextPath}/ajax/addGroup.page',
+								type:'POST',
+								data:{
+									module:'ajax',
+									action:'addGroup',
+									groupName:value,
+								},
+								success:function(data){
+									if(data=='success'){
+										window.location.href = window.location.href;
+									} else{
+										layer.msg('添加失败，请重试！');
+									}
+								}
+							})
+						}
+						  layer.close(index);
+						});
+				}
+				
+				function editGroup(){
+					var nodes = zTreeObj.getCheckedNodes(true);
+					if(nodes.length!=1){
+						layer.msg('请勾选一个节点！');
+						return;
+					}
+					var node = nodes[0];
+					layer.prompt({
+						title: '请输入分组名称',
+						value:node.name
+					},function(value, index, elem){
+						if(value!=''){
+							$.ajax({
+								url:'${contextPath}/ajax/editGroup.page',
+								type:'POST',
+								data:{
+									module:'ajax',
+									action:'editGroup',
+									groupId:node.id,
+									groupName:value,
+								},
+								success:function(data){
+									if(data=='success'){
+										node.name = value;
+										zTreeObj.updateNode(node);
+										layer.msg('修改成功！');
+									} else{
+										layer.msg('修改失败，请重试！');
+									}
+								}
+							})
+						}
+						  layer.close(index);
+						});
+				}
+				
+				function delGroup(){
+					var nodes = zTreeObj.getCheckedNodes(true);
+					if(nodes.length!=1){
+						layer.msg('请勾选一个节点！');
+						return;
+					}
+					var node = nodes[0];
+					layer.confirm('删除后不可恢复，确认删除吗？', {icon: 3, title:'提示'}, function(index){
+						$.ajax({
+							url:'${contextPath}/ajax/delGroup.page',
+							type:'POST',
+							data:{
+								module:'ajax',
+								action:'delGroup',
+								groupId:node.id,
+							},
+							success:function(data){
+								if(data=='success'){
+									zTreeObj.removeNode(node);
+									layer.msg('删除成功！');
+								} else{
+									layer.msg('删除失败，请重试！');
+								}
+							}
+						});
+						  layer.close(index);
+						});   
+				}
+				function tocommon(){
+					$('#myperson').removeClass('on');
+					$('#mycommon').addClass('on');
+					$('.commonBody').removeClass('displayNone');
+					$('.personBody').addClass('displayNone');
+				}
+				function toperson(){
+					$('#mycommon').removeClass('on');
+					$('#myperson').addClass('on');
+					$('.personBody').removeClass('displayNone');
+					$('.commonBody').addClass('displayNone');
+				}
+				function addToGroup(groupId,treeNode,index){
+					var nodes = zTreeObj1.getCheckedNodes();
+					var ids = [];
+					for(var i=0;i<nodes.length;i++){
+						ids.push(nodes[i].id);
+					}
+					if(ids.length<1){
+						layer.msg('请至少勾选一个用户');
+						return;
+					}
+					var idstring = ids.join(',');
+					$.ajax({
+						url:'${contextPath}/ajax/addToGroup.page',
+						type:'POST',
+						data:{
+							module:'ajax',
+							action:'addToGroup',
+							groupId:groupId,
+							ids:idstring
+						},
+						success:function(data){
+							if(data=='success'){
+								layer.msg('添加成功！');
+								for(var i=0;i<nodes.length;i++){
+									var existNode = zTreeObj.getNodeByParam("id",nodes[i].id,treeNode);
+									if(existNode==null){
+										zTreeObj.addNodes(treeNode, {id:nodes[i].id, pId:treeNode.id, name:nodes[i].name, nocheck: true}); //页面上添加节点										
+									}
+								}
+								layer.close(index);
+								zTreeObj1.refresh();
+							} else{
+								layer.msg('添加失败，请重试！');
+							}
+						}
+					})
+				}
+				function search(){
+					var value = $('#usersearch').val().trim();
+					if(value!=''){
+						zTreeObj1=$.fn.zTree.init($("#userTree"), setting1, zNodes1);
+						var searchNode = zTreeObj1.getNodesByParamFuzzy("name", value, null);
+						zTreeObj1=$.fn.zTree.init($("#userTree"), setting1, searchNode);
+					} else{
+						var searchNode = zTreeObj1.getNodesByParamFuzzy("name", value, null);
+						zTreeObj1=$.fn.zTree.init($("#userTree"), setting1, zNodes1);
+					}
+				}
+			</script>
+	</div>
+</td>
+<td valign="top">
+<div id="nav">
+	<span class="nav">
+		<a class="nav" href="${JForumContext.encodeURL("/forums/list")}">${I18n.getMessage("ForumListing.forumIndex")}</a>
+	</span>
+</div>
+<div id="headfilter">
+<ul class="tabs">
+		<li <#if inbox?default(false)>class="spec"</#if>>
+			<a href="${JForumContext.encodeURL("/pm/inbox")}">${I18n.getMessage("PrivateMessage.inbox")}</a>
+		</li>
+		<li <#if sentbox?default(false)>class="spec"</#if>>
+			<a href="${JForumContext.encodeURL("/pm/sentbox")}">${I18n.getMessage("PrivateMessage.sentbox")}</a>
+		</li>
+		<li style="border: medium none;">
+			<a href="${JForumContext.encodeURL("/pm/send")}">${I18n.getMessage("PrivateMessage.title")}</a>
+		</li>
+	</ul>
+</div>
+<div id="foruminfo" style="margin-top:0px;">
+	<div class="mainbox topiclist">
+		<h1><#if inbox?default(false)>${I18n.getMessage("PrivateMessage.inbox")}</#if><#if sentbox?default(false)>${I18n.getMessage("PrivateMessage.sentbox")}</#if></h1>
+		<script type="text/javascript">
+			function select_switch(status) 
+			{
+				for (i = 0; i < document.privmsg_list.length; i++) {
+					document.privmsg_list.elements[i].checked = status;
+				}
+			}
+		</script>
+		<form action="${JForumContext.encodeURL("/jforum")}" method="post" name="privmsg_list" id="privmsg_list">
+			<input type="hidden" name="module" value="${moduleName}" />
+			<input type="hidden" name="action" value="delete" />
+			<table cellspacing="0" cellpadding="10" width="100%" align="center" border="0">
+			<tbody>
+				<thead class="category">
+					<tr>
+						<td width="5px"></td>
+						<td width="5px" height="25"></td>
+						<td width="50%" align="left">
+							&nbsp;${I18n.getMessage("PrivateMessage.subject")}&nbsp;
+						</td>
+						<td width="20%">
+							<#if inbox?default(false)>
+							&nbsp;${I18n.getMessage("PrivateMessage.from")}&nbsp;
+							<#else>
+							&nbsp;${I18n.getMessage("PrivateMessage.to")}&nbsp;
+							</#if>
+						</td>
+						<td nowrap="nowrap" width="100px">
+							&nbsp;${I18n.getMessage("PrivateMessage.date")}&nbsp;
+						</td>
+					</tr>
+					</thead>
+					<#if (pmList.size() <= 0)>
+						<tr>
+						    <td colspan="5">${I18n.getMessage("PrivateMessage.noMessage")}</td>
+					    </tr>
+					</#if>
+					<#list pmList as pm>
+						<tr>
+							<td valign="middle" align="center" width="5px"><input type="checkbox" value="${pm.id}" name="id" /></td>
+							<td class="row1" valign="middle" align="center" width="5px">
+								<#if pm.type == NEW>
+									<img src="${contextPath}/templates/${templateName}/images/msg_new.gif" alt="${I18n.getMessage("PrivateMessage.unreadmsg")}" />
+								<#else>
+									<img src="${contextPath}/templates/${templateName}/images/msg.gif" alt="" />
+								</#if>
+							</td>
+							<td valign="middle" width="60%"><span class="topictitle">&nbsp;<a class="topictitle" href="${JForumContext.encodeURL("/pm/read/${pm.id}")}">${pm.post.subject?html}</a></span></td>
+							<td valign="middle" align="left" width="20%">
+								<#if inbox?default(false)>
+									<span class="name">&nbsp;<a class="name" href="${JForumContext.encodeURL("/user/profile/${pm.fromUser.id}")}">${pm.fromUser.msnm}</a></span>
+								<#else>
+									<span class="name">&nbsp;<a class="name" href="${JForumContext.encodeURL("/user/profile/${pm.toUser.id}")}">${pm.toUser.msnm}</a></span>
+								</#if>
+							</td>
+							<td valign="middle" align="center" width="100px"><span class="postdetails">${pm.formatedDate}</span></td>
+						</tr>
+					</#list>
+					<tr>
+						<td colspan="3"><b><span class="gensmall"><a class="gensmall" href="javascript:select_switch(true);">${I18n.getMessage("PrivateMessage.checkAll")}</a> 
+								<a href="javascript:select_switch(false);">${I18n.getMessage("PrivateMessage.uncheckAll")}</a></span></b>
+						</td>
+						<td class="catbottom" align="right" colspan="2" height="28">
+							&nbsp; <input class="submit" type="submit" value="${I18n.getMessage("PrivateMessage.deleteSelected")}" name="delete" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
+</td>
+</tr>
+</table>
+<div class="commonBody displayNone" id="layer">
+	<div class="search">
+		<input type="text" placeholder="输入姓名搜索" id="usersearch"/>
+		<img alt="搜索" onclick="search()" src="${contextPath}/templates/default/images/search.gif" style="vertical-align: middle;">
+	</div>
+	<div class="users" id="ownuser">
+		<ul id="userTree" class="ztree"></ul>
+	</div>
+	<script type="text/javascript">
+	$('#usersearch').keydown(function(e){
+		if(e.keyCode==13){
+			search()
+		}
+	});
+	</script>
+</div>
+<#include "bottom.htm"/>
