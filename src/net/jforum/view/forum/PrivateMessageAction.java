@@ -445,6 +445,14 @@ public class PrivateMessageAction extends Command {
 		this.context.put("pm", pm);
 		this.context.put("pmReply", true);
 
+        if(pm.getFromUser()!=null){
+            this.context.put("toUserId1", pm.getFromUser().getId());
+            this.context.put("toUsername1", pm.getFromUser().getMsnm());
+        } else{
+            this.context.put("toUserId1", "");
+            this.context.put("toUsername1", "");
+        }
+
 		this.sendFormCommon(DataAccessDriver.getInstance().newUserDAO()
 				.selectById(SessionFacade.getUserSession().getUserId()));
 	}

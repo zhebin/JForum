@@ -54,8 +54,10 @@ function turnSpecial() {
                 <span class="gen">${I18n.getMessage("Rank.Form.currImg")}:</span><br />
             </td>
             <td class="row2">
+                <#if rank??>
                 <#if (rank.image?exists && rank.image?length > 0)>
                     <img src="${contextPath}/images/rank/${rank.image}" /><br />
+                </#if>
                 </#if>
             </td>
         </tr>
